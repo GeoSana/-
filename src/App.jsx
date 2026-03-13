@@ -4,6 +4,9 @@ import InteractiveMap from './components/InteractiveMap';
 import AITutor from './components/AITutor';
 import Quizzes from './features/Quizzes';
 import Auth from './components/Auth';
+import kaz1 from './assets/kaz_landscape_1.png';
+import kaz2 from './assets/kaz_landscape_2.png';
+import kaz3 from './assets/kaz_landscape_3.png';
 
 function App() {
   const [showAuth, setShowAuth] = useState(false);
@@ -28,10 +31,11 @@ function App() {
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-slideshow">
-          <div className="hero-slide" style={{ backgroundImage: 'url(/src/assets/kaz_landscape_1.png)' }}></div>
-          <div className="hero-slide" style={{ backgroundImage: 'url(/src/assets/kaz_landscape_2.png)' }}></div>
-          <div className="hero-slide" style={{ backgroundImage: 'url(/src/assets/kaz_landscape_3.png)' }}></div>
+          <div className="hero-slide" style={{ backgroundImage: `url(${kaz1})` }}></div>
+          <div className="hero-slide" style={{ backgroundImage: `url(${kaz2})` }}></div>
+          <div className="hero-slide" style={{ backgroundImage: `url(${kaz3})` }}></div>
         </div>
+
         <div className="hero-overlay"></div>
         <div className="container">
           <div className="animate-up">
