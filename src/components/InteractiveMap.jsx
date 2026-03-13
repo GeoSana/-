@@ -147,25 +147,31 @@ const InteractiveMap = () => {
         @media (max-width: 1024px) {
           .map-grid-container {
             grid-template-columns: 1fr !important;
-            gap: 2rem !important;
+            gap: 1.5rem !important;
           }
         }
         @media (max-width: 768px) {
           .map-grid-container .glass-card {
-            padding: 1.5rem !important;
+            padding: 1.25rem !important;
           }
           .info-panel-wrapper h3 {
             font-size: 1.5rem !important;
+            margin-bottom: 0.25rem !important;
           }
           .stats-grid {
             grid-template-columns: 1fr 1fr !important;
+            gap: 0.75rem !important;
           }
         }
         @media (max-width: 480px) {
           .stats-grid {
             grid-template-columns: 1fr !important;
           }
+          .interactive-svg {
+            margin: -10px 0;
+          }
         }
+
       `}</style>
 
     </div>

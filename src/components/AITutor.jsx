@@ -30,10 +30,14 @@ const AITutor = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const isFirstMount = useRef(true);
 
   const scrollToBottom = () => {
+    if (messages.length <= 1 && !isTyping) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+
 
   useEffect(scrollToBottom, [messages, isTyping]);
 
@@ -66,12 +70,13 @@ const AITutor = () => {
   return (
     <div className="tutor-container">
       <div className="tutor-info decorate-anim">
-        <h3 className="font-serif tutor-title" style={{ fontSize: '2.5rem', marginBottom: '1.5rem', lineHeight: '1.2' }}>
+        <h3 className="font-serif tutor-title" style={{ fontSize: 'clamp(1.5rem, 6vw, 2.5rem)', marginBottom: '1rem', lineHeight: '1.2' }}>
           Ваш персональный <br /><span style={{ color: 'var(--primary)' }}>путеводитель</span>
         </h3>
-        <p className="tutor-desc" style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.1rem' }}>
+        <p className="tutor-desc" style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '1rem' }}>
           Наш искусственный интеллект глубоко изучил географии, культуру и ресурсы всех 17 областей Казахстана, чтобы помочь вам в обучении.
         </p>
+
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
           {suggestions.map((s, idx) => (

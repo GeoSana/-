@@ -207,23 +207,24 @@ const Quizzes = () => {
   return (
     <div className="quiz-grid-wrapper">
       <div className="quiz-grid">
-        <div className="glass-card quiz-card" onClick={() => startQuiz('FLAG')} style={{ cursor: 'pointer' }}>
-          <div className="quiz-icon">🚩</div>
-          <h3 className="font-serif" style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>Флаги Мира</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Проверьте свою зрительную память и знание государственных символов.</p>
+        <div className="glass-card quiz-card" onClick={() => startQuiz('FLAG')} style={{ cursor: 'pointer', padding: '1.25rem' }}>
+          <div className="quiz-icon" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🚩</div>
+          <h3 className="font-serif" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Флаги Мира</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Проверьте свою память и знание символов.</p>
         </div>
 
-        <div className="glass-card quiz-card" onClick={() => startQuiz('FACT')} style={{ cursor: 'pointer' }}>
-          <div className="quiz-icon">🌍</div>
-          <h3 className="font-serif" style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>Анализ Фактов</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Сможете ли вы узнать страну по её столице, региону и численности населения?</p>
+        <div className="glass-card quiz-card" onClick={() => startQuiz('FACT')} style={{ cursor: 'pointer', padding: '1.25rem' }}>
+          <div className="quiz-icon" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🌍</div>
+          <h3 className="font-serif" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Анализ Фактов</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Сможете ли вы узнать страну по её описанию?</p>
         </div>
 
-        <div className="glass-card quiz-card" onClick={() => startQuiz('SHAPE')} style={{ cursor: 'pointer' }}>
-          <div className="quiz-icon">🗺️</div>
-          <h3 className="font-serif" style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>Контурная Карта</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Самый сложный уровень: узнайте государство по его уникальным очертаниям.</p>
+        <div className="glass-card quiz-card" onClick={() => startQuiz('SHAPE')} style={{ cursor: 'pointer', padding: '1.25rem' }}>
+          <div className="quiz-icon" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🗺️</div>
+          <h3 className="font-serif" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Контурная Карта</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Узнайте государство по его уникальным очертаниям.</p>
         </div>
+
       </div>
       <style>{`
         @media (max-width: 768px) {
