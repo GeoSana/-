@@ -13,7 +13,7 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
 
   return (
-    <Router>
+    <Router basename="/-">
       <AchievementPopup />
       <MainLayout onAuthClick={() => setShowAuth(true)}>
         <Routes>
