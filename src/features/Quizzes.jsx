@@ -212,7 +212,7 @@ const Quizzes = () => {
           <div className="quiz-visual-side animate-pop" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             {currentQ.image ? (
               <img 
-                src={currentQ.image} 
+                src={currentQ.image.startsWith('/') ? import.meta.env.BASE_URL + currentQ.image.slice(1) : currentQ.image} 
                 alt="visual" 
                 style={{ 
                     maxWidth: '96%', 
