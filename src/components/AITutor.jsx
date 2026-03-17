@@ -1,208 +1,183 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useGameState } from '../context/GameStateContext';
 
-const knowledgeBase = [
-  { keywords: ['площадь', 'территория', 'размер'], answer: 'Площадь Казахстана составляет около 2 724 900 км² — это 9-я по величине страна в мире. Территория протянулась на 3000 км с запада на восток и на 1700 км с севера на юг.' },
-  { keywords: ['столица', 'астана'], answer: 'Столицей Казахстана является город Астана (ранее Нур-Султан). Он расположен в центральной части страны и стал столицей в 1997 году, сменив Алматы.' },
-  { keywords: ['самая длинная река', 'иртыш'], answer: 'Самая длинная река в Казахстане — Иртыш, её протяженность на территории страны составляет 1 700 км. Общая длина Иртыша — 4 248 км.' },
-  { keywords: ['самая высокая точка', 'хан-тенгри', 'пик'], answer: 'Самая высокая точка Казахстана — пик Хан-Тенгри (7 010 м). Расположен на стыке границ Казахстана, Кыргызстана и Китая в горах Тянь-Шань.' },
-  { keywords: ['озеро', 'балхаш', 'каспий'], answer: 'Крупнейшие озёра Казахстана: Каспийское море (на западе), озеро Балхаш (уникально тем, что одна часть пресная, другая — солёная), и Аральское море.' },
-  { keywords: ['население', 'сколько людей', 'жители'], answer: 'Население Казахстана превышает 20 миллионов человек. Крупнейшие города: Алматы (~2 млн), Астана (~1.4 млн), Шымкент (~1.2 млн).' },
-  { keywords: ['байконур', 'космодром', 'космос'], answer: 'Космодром Байконур — первый и крупнейший космодром в мире! Он расположен в Кызылординской области. Именно отсюда 12 апреля 1961 года Юрий Гагарин отправился в первый полёт в космос.' },
-  { keywords: ['алматы', 'южная столица'], answer: 'Алматы — крупнейший город и бывшая столица Казахстана. Расположен у подножия гор Заилийского Алатау. Знаменит парком Кок-Тобе, катком Медеу и горнолыжным курортом Шымбулак.' },
-  { keywords: ['пустыня', 'степь'], answer: 'Большая часть Казахстана — степи и полупустыни. Самая крупная пустыня — Кызылкум на юге. Также выделяются Бетпак-Дала (Голодная степь) и плато Устюрт.' },
-  { keywords: ['граница', 'соседи', 'сосед'], answer: 'Казахстан граничит с 5 странами: Россия (на севере), Китай (на востоке), Кыргызстан, Узбекистан и Туркменистан (на юге). Общая длина границ ~ 13 200 км.' },
-  { keywords: ['чарын', 'каньон'], answer: 'Чарынский каньон — уникальный памятник природы в Алматинской области. Его возраст 12 миллионов лет! Длина каньона — около 154 км, а самая известная часть — "Долина замков".' },
-  { keywords: ['полезные ископаемые', 'нефть', 'уран', 'ресурс'], answer: 'Казахстан богат полезными ископаемыми: 1-е место в мире по запасам урана, в топ-10 по нефти, газу, хрому, свинцу и цинку. Нефтяные месторождения сосредоточены на западе (Кашаган, Тенгиз).' },
-  { keywords: ['шёлковый путь', 'шелковый'], answer: 'Великий Шёлковый путь проходил через территорию Казахстана. Крупнейшие города на этом пути: Туркестан, Тараз, Отрар. Сейчас наследие Шёлкового пути — важная часть культурного туризма.' },
-];
+const knowledgeBase = {
+  ru: [
+    { keywords: ['площадь', 'территория', 'размер'], answer: 'Площадь Казахстана — 2 724 900 км². Это 9-я по величине страна в мире и самая большая среди стран, не имеющих выхода к морю.' },
+    { keywords: ['столица', 'астана'], answer: 'Столица Казахстана — Астана. Она стала столицей в 1997 году. Это современный город с уникальной архитектурой, такой как Байтерек и Хан Шатыр.' },
+    { keywords: ['самая длинная река', 'иртыш', 'реки'], answer: 'Самая длинная река — Иртыш (1700 км по РК). Также крупные реки: Сырдарья, Урал (Жайык), Или и Чу.' },
+    { keywords: ['байконур', 'космодром'], answer: 'Байконур — первый и крупнейший космодром в мире. Отсюда был запущен первый спутник и первый человек в космос — Юрий Гагарин.' },
+    { keywords: ['население', 'жители', 'сколько людей'], answer: 'Население Казахстана — более 20 миллионов человек. Страна является многонациональной и гостеприимной.' },
+    { keywords: ['алматы', 'алма-ата'], answer: 'Алматы — крупнейший город Казахстана, "южная столица". Знаменит своими горами (Заилийский Алатау), катком Медеу и горнолыжным курортом Шымбулак.' },
+    { keywords: ['каспий', 'озеро', 'море'], answer: 'Каспийское море — самое большое озеро в мире. На западе Казахстана развита добыча нефти именно в этом регионе.' },
+    { keywords: ['балхаш'], answer: 'Озеро Балхаш уникально тем, что его восточная часть соленая, а западная — пресная.' },
+    { keywords: ['степь', 'природа'], answer: 'Степи занимают около 26% территории Казахстана. Это родина тюльпанов и древних кочевников.' },
+    { keywords: ['привет', 'здравствуй'], answer: 'Привет! Я виртуальный гид по географии Казахстана. О чем хочешь узнать?' },
+  ],
+  kz: [
+    { keywords: ['алаң', 'аумақ', 'көлем'], answer: 'Қазақстанның аумағы — 2 724 900 км². Бұл әлемдегі 9-шы орын және теңізге шыға алмайтын ең үлкен ел.' },
+    { keywords: ['астана'], answer: 'Қазақстанның астанасы — Астана қаласы. Ол 1997 жылы астана мәртебесін алды. Бәйтерек пен Хан Шатыр сияқты бірегей ғимараттарымен танымал.' },
+    { keywords: ['өзен', 'ертіс'], answer: 'Ең ұзын өзен — Ертіс (ел ішінде 1700 км). Сондай-ақ Сырдария, Жайық, Іле және Шу өзендері өте маңызды.' },
+    { keywords: ['байқоңыр', 'ғарыш'], answer: 'Байқоңыр — әлемдегі алғашқы және ең үлкен ғарыш айлағы. Мұнда бірінші жасанды серік пен тұңғыш ғарышкер Юрий Гагарин ұшты.' },
+    { keywords: ['халық', 'адам саны'], answer: 'Қазақстан халқы 20 миллионнан асты. Еліміз көпұлтты және қонақжай.' },
+    { keywords: ['алматы'], answer: 'Алматы — Қазақстанның ең үлкен қаласы, "Оңтүстік астана". Медеу мұз айдыны мен Шымбұлақ курортымен танымал.' },
+    { keywords: ['каспий', 'теңіз'], answer: 'Каспий теңізі — әлемдегі ең үлкен көл. Еліміздің батысында мұнай өндіру осы аймақпен тығыз байланысты.' },
+    { keywords: ['балқаш'], answer: 'Балқаш көлінің ерекшелігі — оның шығыс бөлігі тұзды, ал батыс бөлігі тұщы болып келеді.' },
+    { keywords: ['дала', 'табиғат'], answer: 'Қазақстан аумағының 26%-ын дала алып жатыр. Бұл қызғалдақтардың отаны.' },
+    { keywords: ['сәлем'], answer: 'Сәлем! Мен Қазақстан географиясы бойынша виртуалды гидпін. Не туралы білгіңіз келеді?' },
+  ]
+};
 
-const suggestions = [
-  'Какая столица Казахстана?',
-  'Расскажи про Байконур',
-  'Самая высокая точка?',
-  'Что такое Чарынский каньон?',
-];
+const suggestions = {
+  ru: ['Какая столица Казахстана?', 'Расскажи про Байконур', 'Сколько людей в стране?'],
+  kz: ['Қазақстанның астанасы қай қала?', 'Байқоңыр туралы айтып бер', 'Халық саны қанша?']
+};
+
+let nextId = 10;
 
 const AITutor = () => {
+  const { language } = useGameState();
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 1, text: "Салем! 👋 Я ваш персональный гид по географии Казахстана. О чем вы хотели бы узнать сегодня?", sender: 'ai' }
+    { id: 1, text: language === 'kz' ? "Сәлем! 👋 Мен сіздің Қазақстан географиясы бойынша жеке гидпін. Бүгін не туралы білгіңіз келеді?" : "Салем! 👋 Я ваш персональный гид по географии Казахстана. О чем вы хотели бы узнать сегодня?", sender: 'ai' }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
-  const isFirstMount = useRef(true);
+
+  useEffect(() => {
+    setMessages([{ 
+      id: 1, 
+      text: language === 'kz' ? "Сәлем! 👋 Мен сіздің Қазақстан географиясы бойынша жеке гидпін. Бүгін не туралы білгіңіз келеді?" : "Салем! 👋 Я ваш персональный гид по географии Казахстана. О чем вы хотели бы узнать сегодня?", 
+      sender: 'ai' 
+    }]);
+  }, [language]);
 
   const scrollToBottom = () => {
-    if (messages.length <= 1 && !isTyping) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-
 
   useEffect(scrollToBottom, [messages, isTyping]);
 
   const findAnswer = (question) => {
     const lowerQ = question.toLowerCase();
-    for (const item of knowledgeBase) {
+    const currentKB = knowledgeBase[language];
+    for (const item of currentKB) {
       if (item.keywords.some(kw => lowerQ.includes(kw))) {
         return item.answer;
       }
     }
-    return `Это отличный вопрос! О Казахстане можно рассказывать бесконечно. Может быть, вас интересуют конкретные регионы, природные заповедники или история развития наших городов?`;
+    return null;
   };
 
-  const handleSend = (text) => {
+  const handleSend = async (text) => {
     const messageText = text || input;
     if (!messageText.trim()) return;
 
-    const userMessage = { id: Date.now(), text: messageText, sender: 'user' };
+    const userMessage = { id: nextId++, text: messageText, sender: 'user' };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const answer = findAnswer(messageText);
-      setMessages(prev => [...prev, { id: Date.now() + 1, text: answer, sender: 'ai' }]);
-      setIsTyping(false);
-    }, 1500);
+    let answer = null;
+
+    // 1. Try AI first
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      
+      if (apiKey && apiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
+        const systemPrompt = `You are a helpful AI guide for Kazakhstan geography. 
+        Answer in ${language === 'kz' ? 'Kazakh' : 'Russian'}. 
+        Keep answers concise and informative. 
+        Use the following knowledge base if relevant: ${JSON.stringify(knowledgeBase[language])}`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `${systemPrompt}\n\nUser Question: ${messageText}` }] }]
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+            answer = data.candidates[0].content.parts[0].text;
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('AI API failed, falling back to local KB:', error);
+    }
+
+    // 2. Fallback to Local Knowledge Base if AI failed or returned no answer
+    if (!answer) {
+      answer = findAnswer(messageText);
+    }
+
+    // 3. Default response if nothing found
+    if (!answer) {
+      answer = language === 'kz' 
+        ? "Бұл өте жақсы сұрақ! Қазақстан туралы шексіз айтуға болады. Нақтырақ не білгіңіз келеді?" 
+        : "Это отличный вопрос! О Казахстане можно рассказывать бесконечно. Что именно вы хотели бы уточнить?";
+    }
+
+    setMessages(prev => [...prev, { id: nextId++, text: answer, sender: 'ai' }]);
+    setIsTyping(false);
   };
 
   return (
-    <div className="tutor-container">
-      <div className="tutor-info decorate-anim">
-        <h3 className="font-serif tutor-title" style={{ fontSize: 'clamp(1.5rem, 6vw, 2.5rem)', marginBottom: '1rem', lineHeight: '1.2' }}>
-          Ваш персональный <br /><span style={{ color: 'var(--primary)' }}>путеводитель</span>
-        </h3>
-        <p className="tutor-desc" style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '1rem' }}>
-          Наш искусственный интеллект глубоко изучил географии, культуру и ресурсы всех 17 областей Казахстана, чтобы помочь вам в обучении.
-        </p>
+    <div className={`floating-chat-widget ${isOpen ? 'expanded' : ''}`}>
+      <button className="chat-fab" onClick={() => setIsOpen(!isOpen)}>
+        <span className="fab-icon">{isOpen ? '✕' : '🤖'}</span>
+      </button>
 
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-          {suggestions.map((s, idx) => (
-            <button 
-              key={idx} 
-              onClick={() => handleSend(s)}
-              style={{
-                background: 'rgba(14, 165, 233, 0.08)',
-                border: '1px solid rgba(14, 165, 233, 0.2)',
-                color: 'var(--primary)',
-                padding: '0.6rem 1.2rem',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                transition: 'var(--transition)'
-              }}
-              className="suggestion-btn"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="glass-card tutor-chat">
+      <div className="chat-popup glass-card">
         <div className="chat-header">
-          <div style={{
-            width: '48px', height: '48px', borderRadius: '50%',
-            background: 'var(--primary)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.25rem', color: 'white',
-            boxShadow: '0 0 20px rgba(14, 165, 233, 0.4)'
-          }}>
-            🇰🇿
-          </div>
-          <div>
-            <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>AI QazaqBot</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <span style={{ width: '6px', height: '6px', background: 'var(--primary)', borderRadius: '50%' }}></span>
-              Система активна
+          <div className="chat-avatar">🇰🇿</div>
+          <div className="chat-header-text">
+            <div className="chat-title">AI QazaqBot</div>
+            <div className="status-indicator">
+              <span className="dot"></span>
+              {language === 'kz' ? 'Жүйе белсенді' : 'Система активна'}
             </div>
           </div>
         </div>
 
-        <div className="chat-body">
+        <div className="chat-body scrollbar-custom">
           {messages.map(msg => (
             <div key={msg.id} className={`message ${msg.sender === 'ai' ? 'message-ai' : 'message-user'}`}>
               {msg.text}
             </div>
           ))}
-          {isTyping && (
-            <div className="message message-ai" style={{ opacity: 0.7 }}>
-              Аназизирую запрос...
-            </div>
-          )}
+          {isTyping && <div className="message message-ai typing">...</div>}
           <div ref={messagesEndRef} />
         </div>
 
+        {messages.length <= 1 && !isTyping && (
+          <div className="chat-suggestions">
+            {suggestions[language].map((s, idx) => (
+              <button key={idx} onClick={() => handleSend(s)} className="suggestion-pill">
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="chat-input-area">
-          <div style={{ position: 'relative' }}>
+          <div className="input-group">
             <input 
               type="text" 
-              className="chat-input"
+              className="chat-input-field"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Введите ваш вопрос здесь..."
+              placeholder={language === 'kz' ? "Сұрақ қойыңыз..." : "Спросите меня о чем-нибудь..."}
             />
-            <button 
-              onClick={() => handleSend()}
-              style={{
-                position: 'absolute',
-                right: '0.75rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'var(--primary)',
-                border: 'none',
-                borderRadius: 'var(--radius-sm)',
-                padding: '0.4rem 0.8rem',
-                color: 'white',
-                cursor: 'pointer'
-              }}
-            >
-              ➔
-            </button>
+            <button onClick={() => handleSend()} className="chat-send-btn">➔</button>
           </div>
         </div>
       </div>
-
-      <style>{`
-        .suggestion-btn:hover {
-          background: rgba(14, 165, 233, 0.15) !important;
-          transform: translateY(-2px);
-        }
-        @media (max-width: 768px) {
-          .tutor-title {
-            font-size: 2rem !important;
-            margin-bottom: 1rem !important;
-          }
-          .tutor-desc {
-            font-size: 1rem !important;
-            margin-bottom: 1.5rem !important;
-          }
-          .tutor-chat {
-            height: 450px !important;
-          }
-          .chat-header {
-            padding: 1rem !important;
-          }
-          .chat-body {
-            padding: 1rem !important;
-          }
-          .chat-input-area {
-            padding: 1rem !important;
-          }
-        }
-        @media (max-width: 480px) {
-          .tutor-title {
-            font-size: 1.75rem !important;
-          }
-          .suggestion-btn {
-            width: 100%;
-            text-align: left;
-          }
-        }
-      `}</style>
     </div>
   );
 };

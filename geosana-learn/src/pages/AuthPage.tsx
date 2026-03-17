@@ -28,7 +28,7 @@ export default function AuthPage() {
               {isLogin ? 'С возвращением' : 'Создать аккаунт'}
             </h1>
             <p className="text-slate-400 text-sm">
-              {isLogin ? 'Войдите, чтобы продолжить обучение' : 'Присоединяйтесь к QazaqGeo Learn'}
+              {isLogin ? 'Войдите, чтобы продолжить обучение' : 'Присоединяйтесь к GeoSana Learn'}
             </p>
           </div>
 

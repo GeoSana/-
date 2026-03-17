@@ -1,82 +1,30 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { feature } from 'topojson-client';
-import { geoPath, geoMercator } from 'd3-geo';
-import worldData from '../data/world-110m.json';
+import React, { useState } from 'react';
+import { useGameState } from '../context/GameStateContext';
+import quizzesData from '../data/quizzes.json';
+import SongQuiz from './SongQuiz';
+import WordSearch from './WordSearch';
+import MapLabeling from './MapLabeling';
 
 const Quizzes = () => {
-  const [countries, setCountries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [gameMode, setGameMode] = useState(null); // 'FLAG', 'FACT', 'SHAPE', null (menu)
-  
-  const [questions, setQuestions] = useState([]);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [isAnswered, setIsAnswered] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);
+  const { addXp, language, t } = useGameState();
 
-  const shapesData = useMemo(() => {
-    try {
-      const geojson = feature(worldData, worldData.objects.countries);
-      return geojson.features;
-    } catch (err) {
-      console.error("Failed to parse TopoJSON", err);
-      return [];
-    }
-  }, []);
-
-  const fetchCountries = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('https://restcountries.com/v3.1/all?fields=name,flags,capital,region,subregion,population,ccn3');
-      if (!res.ok) throw new Error('Network error');
-      const data = await res.json();
-      const validCountries = data.filter(c => c.name?.common && c.flags?.svg);
-      const merged = validCountries.map(c => {
-        const countryId = c.ccn3 ? parseInt(c.ccn3, 10) : -1;
-        const matchingShape = shapesData.find(s => parseInt(s.id, 10) === countryId);
-        return { ...c, shape: matchingShape || null };
-      });
-      setCountries(merged);
-      setLoading(false);
-    } catch (err) {
-      setError('Не удалось загрузить данные о странах. ' + err.message);
-      setLoading(false);
-    }
+  const backToSelection = () => {
+    setSelectedQuiz(null);
+    setShowResult(false);
+    setCurrentIndex(0);
+    setScore(0);
+    setIsAnswered(false);
+    setSelectedAnswer(null);
   };
 
-  useEffect(() => {
-    fetchCountries();
-  }, []);
-
-  const getRandomSubset = (arr, num) => {
-    const shuffled = [...arr].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, num);
-  };
-
-  const startQuiz = (mode) => {
-    let pool = countries;
-    if (mode === 'SHAPE') pool = countries.filter(c => c.shape);
-    else if (mode === 'FACT') pool = countries.filter(c => c.capital && c.capital[0] && c.population && c.region);
-    
-    if (pool.length < 4) {
-      alert("Недостаточно данных для запуска этого режима.");
-      return;
-    }
-
-    const generated = [];
-    for (let i = 0; i < 10; i++) {
-      const optionsPool = getRandomSubset(pool, 4);
-      const targetCountry = optionsPool[Math.floor(Math.random() * 4)];
-      generated.push({
-        target: targetCountry,
-        options: optionsPool.map(c => c.name.common),
-      });
-    }
-
-    setQuestions(generated);
-    setGameMode(mode);
+  const startQuiz = (quiz) => {
+    setSelectedQuiz(quiz);
     setCurrentIndex(0);
     setScore(0);
     setShowResult(false);
@@ -84,120 +32,251 @@ const Quizzes = () => {
     setSelectedAnswer(null);
   };
 
-  const handleAnswer = (optionName) => {
+  const handleAnswer = (idx) => {
     if (isAnswered) return;
-    setSelectedAnswer(optionName);
+    setSelectedAnswer(idx);
     setIsAnswered(true);
-    if (optionName === questions[currentIndex].target.name.common) setScore(score + 10);
+    
+    const isCorrect = idx === selectedQuiz.questions[currentIndex].correctAnswer;
+    if (isCorrect) setScore(score + 1);
 
     setTimeout(() => {
-      if (currentIndex + 1 < questions.length) {
+      if (currentIndex + 1 < selectedQuiz.questions.length) {
         setCurrentIndex(currentIndex + 1);
         setIsAnswered(false);
         setSelectedAnswer(null);
       } else {
-        setShowResult(true);
+        finishQuiz(score + (isCorrect ? 1 : 0));
       }
     }, 1500);
   };
 
-  const renderShape = (shapeFeature) => {
-    if (!shapeFeature) return null;
-    const projection = geoMercator().fitSize([320, 240], shapeFeature);
-    const pathGenerator = geoPath().projection(projection);
-    const d = pathGenerator(shapeFeature);
-    return (
-      <svg width="320" height="240" style={{ filter: 'drop-shadow(0 0 15px var(--primary))', margin: '0 auto', display: 'block' }}>
-        <path fill="rgba(14, 165, 233, 0.2)" stroke="var(--primary)" strokeWidth="2" d={d} />
-      </svg>
-    );
+  const finishQuiz = (finalCorrectCount = score) => {
+    setScore(finalCorrectCount);
+    setShowResult(true);
+    const difficultyMultiplier = selectedQuiz.difficulty === 3 ? 2.0 : selectedQuiz.difficulty === 2 ? 1.5 : 1.0;
+    
+    // Use dynamic total based on quiz type
+    const total = 
+      selectedQuiz.type === 'wordsearch' ? selectedQuiz.wordSearchData.words.length :
+      selectedQuiz.type === 'map-labeling' ? selectedQuiz.mapLabelingData.pins.length :
+      selectedQuiz.questions.length;
+
+    const baseScore = Math.round((finalCorrectCount / (total || 1)) * 100);
+    const finalXp = Math.round(baseScore * difficultyMultiplier);
+    addXp(finalXp, true, baseScore);
   };
 
-  if (loading) return <div style={{ color: 'var(--primary)', textAlign: 'center', padding: '100px' }}>Загрузка образовательных модулей...</div>;
-  if (error) return <div style={{ color: 'var(--accent)', textAlign: 'center', padding: '100px' }}>{error}</div>;
+  const getQuizIcon = (iconName) => {
+    const icons = {
+      'Map': '🗺️',
+      'Car': '🚗',
+      'Flag': '🚩',
+      'Globe': '🌍',
+      'Mountain': '🏔️',
+      'Landmark': '🏛️',
+      'Utensils': '🍴',
+      'BookOpen': '📖',
+      'Music': '🎵',
+      'Trophy': '🏆',
+      'Star': '⭐',
+      'Camera': '📸',
+      'Cpu': '💻'
+    };
+    return icons[iconName] || '📝';
+  };
+
+  const [activeCategory, setActiveCategory] = useState('kz');
+
+  const filteredQuizzes = quizzesData.filter(q => q.category === activeCategory);
 
   if (showResult) {
-    const maxScore = questions.length * 10;
+    const totalQuestions = 
+      selectedQuiz.type === 'wordsearch' ? selectedQuiz.wordSearchData.words.length :
+      selectedQuiz.type === 'map-labeling' ? selectedQuiz.mapLabelingData.pins.length :
+      selectedQuiz.questions.length;
+    const percentage = Math.round((score / (totalQuestions || 1)) * 100);
+    
     return (
-      <div className="glass-card animate-up" style={{ maxWidth: '600px', margin: '0 auto', padding: '4rem', textAlign: 'center' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>{score >= maxScore * 0.7 ? '🏆' : '📚'}</div>
-        <h2 className="font-serif" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Результаты</h2>
-        <div style={{ fontSize: '3.5rem', fontWeight: '800', color: 'var(--primary)', marginBottom: '1.5rem' }}>{score} / {maxScore}</div>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '3rem', fontSize: '1.1rem' }}>
-          {score >= maxScore * 0.7 ? 'Превосходно! У вас глубокие знания в географии.' : 'Хорошая работа. Продолжайте исследовать мир!'}
-        </p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-          <button className="btn btn-primary" onClick={() => startQuiz(gameMode)}>Пересдать</button>
-          <button className="btn btn-secondary" onClick={() => setGameMode(null)}>К меню</button>
+      <div className="wordwall-quiz-container animate-pop">
+        <div className="quiz-game-card glass-card" style={{ textAlign: 'center', padding: '4rem' }}>
+          <div style={{ fontSize: '6rem', marginBottom: '2rem', filter: 'drop-shadow(0 0 20px rgba(255,215,0,0.3))' }}>
+            {percentage >= 80 ? '👑' : percentage >= 50 ? '🥈' : '🥉'}
+          </div>
+          <h2 className="font-serif" style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+            {percentage >= 80 ? (language === 'kz' ? 'ТАМАША!' : 'ВЕЛИКОЛЕПНО!') : t.quizCompleted}
+          </h2>
+          
+          <div style={{ 
+            background: 'var(--bg-dark)', 
+            borderRadius: 'var(--radius-xl)', 
+            padding: '2.5rem',
+            margin: '2.5rem 0',
+            border: '1px solid var(--border)'
+          }}>
+            <div style={{ fontSize: '4.5rem', fontWeight: '900', color: 'var(--primary)', letterSpacing: '-0.02em' }}>
+              {score} / {totalQuestions}
+            </div>
+            <div style={{ color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+              {language === 'kz' ? 'ДҰРЫС ЖАУАПТАР' : 'ПРАВИЛЬНЫХ ОТВЕТОВ'}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
+            <button className="btn btn-primary" style={{ padding: '1rem 3rem' }} onClick={() => startQuiz(selectedQuiz)}>
+              {language === 'kz' ? 'ҚАЙТАЛАУ' : 'ПЕРЕСДАТЬ'}
+            </button>
+            <button className="btn btn-secondary" style={{ padding: '1rem 3rem' }} onClick={backToSelection}>
+              {t.backToQuizzes}
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (gameMode) {
-    const currentQ = questions[currentIndex];
-    const progress = ((currentIndex + 1) / questions.length) * 100;
-    const target = currentQ.target;
+  if (selectedQuiz?.type === 'wordsearch') {
+    return (
+      <div className="wordwall-quiz-container animate-fade-in">
+        <div style={{ marginBottom: '2rem' }}>
+          <button className="btn btn-secondary" onClick={backToSelection} style={{ padding: '0.8rem 1.5rem', borderRadius: 'var(--radius-lg)' }}>
+            ← {t.backToList}
+          </button>
+        </div>
+        <WordSearch 
+            quiz={selectedQuiz} 
+            onComplete={() => finishQuiz(selectedQuiz.wordSearchData.words.length)} 
+            language={language}
+            t={t}
+        />
+      </div>
+    );
+  }
+
+  if (selectedQuiz?.type === 'map-labeling') {
+    return (
+      <div className="wordwall-quiz-container animate-fade-in" style={{ maxWidth: '1200px' }}>
+        <div style={{ marginBottom: '2rem' }}>
+          <button className="btn btn-secondary" onClick={backToSelection} style={{ padding: '0.8rem 1.5rem', borderRadius: 'var(--radius-lg)' }}>
+            ← {t.backToList}
+          </button>
+        </div>
+        <MapLabeling 
+            quiz={selectedQuiz} 
+            onComplete={(cScore) => finishQuiz(cScore)} 
+            language={language}
+            t={t}
+        />
+      </div>
+    );
+  }
+
+  if (selectedQuiz?.type === 'song-quiz') {
+    return (
+      <div className="wordwall-quiz-container animate-fade-in">
+        <div style={{ marginBottom: '2rem' }}>
+          <button className="btn btn-secondary" onClick={backToSelection} style={{ padding: '0.8rem 1.5rem', borderRadius: 'var(--radius-lg)' }}>
+            ← {t.backToList}
+          </button>
+        </div>
+        <SongQuiz 
+            quiz={selectedQuiz} 
+            onComplete={(cScore) => finishQuiz(cScore)} 
+            language={language}
+            t={t}
+        />
+      </div>
+    );
+  }
+
+  if (selectedQuiz) {
+    const currentQ = selectedQuiz.questions[currentIndex];
 
     return (
-      <div className="quiz-active-view" style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <button className="btn btn-secondary" onClick={() => setGameMode(null)} style={{ padding: '0.5rem 1rem' }}>← Назад</button>
-          <div style={{ textAlign: 'center' }}>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Вопрос {currentIndex + 1} / {questions.length}</span>
+      <div className="wordwall-quiz-container animate-fade-in">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+          <button className="btn btn-secondary" onClick={backToSelection} style={{ padding: '0.8rem 2rem', borderRadius: 'var(--radius-lg)' }}>
+            ← {t.backToList}
+          </button>
+          <div className="glass-card" style={{ 
+            padding: '0.6rem 2rem', 
+            fontWeight: '800',
+            color: 'var(--primary)',
+            fontSize: '1.1rem'
+          }}>
+            {currentIndex + 1} / {selectedQuiz.questions.length}
           </div>
-          <div style={{ color: 'var(--primary)', fontWeight: '700' }}>Cчёт: {score}</div>
         </div>
 
-        <div className="glass-card" style={{ padding: '3rem' }}>
-          <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', marginBottom: '3rem', overflow: 'hidden' }}>
-            <div style={{ width: `${progress}%`, height: '100%', background: 'var(--primary)', transition: 'width 0.4s ease' }}></div>
-          </div>
-
-          <div style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '3rem' }}>
-            {gameMode === 'FLAG' && <img src={target.flags.svg} alt="Flag" style={{ maxWidth: '300px', borderRadius: 'var(--radius-md)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }} />}
-            {gameMode === 'SHAPE' && renderShape(target.shape)}
-            {gameMode === 'FACT' && (
-              <div className="font-serif" style={{ fontSize: '1.5rem', textAlign: 'left', display: 'grid', gap: '1.5rem', background: 'rgba(255,255,255,0.02)', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
-                <div><span style={{ color: 'var(--primary)', fontSize: '0.9rem', display: 'block' }}>СТОЛИЦА</span> {target.capital[0]}</div>
-                <div><span style={{ color: 'var(--primary)', fontSize: '0.9rem', display: 'block' }}>РЕГИОН</span> {target.region}</div>
-                <div><span style={{ color: 'var(--primary)', fontSize: '0.9rem', display: 'block' }}>НАСЕЛЕНИЕ</span> {target.population.toLocaleString()}</div>
+        <div className="quiz-split-layout">
+          <div className="quiz-visual-side animate-pop" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            {currentQ.image ? (
+              <img 
+                src={currentQ.image} 
+                alt="visual" 
+                style={{ 
+                    maxWidth: '96%', 
+                    maxHeight: '96%', 
+                    objectFit: 'contain',
+                    borderRadius: '12px',
+                    filter: 'drop-shadow(0 10px 25px rgba(0,0,0,0.5))'
+                }} 
+              />
+            ) : (
+              <div className="quiz-icon-ww pulsing" style={{ fontSize: '8rem' }}>
+                {currentQ.visual || getQuizIcon(selectedQuiz.iconName)}
               </div>
             )}
           </div>
 
-          <h3 className="font-serif" style={{ textAlign: 'center', fontSize: '1.8rem', marginBottom: '2.5rem' }}>Какая это страна?</h3>
+          <div className="quiz-question-side">
+            <h2 className="quiz-question-text animate-up font-serif" style={{ fontSize: '2.5rem', lineHeight: '1.2' }}>
+              {currentQ.question[language]}
+            </h2>
 
-          <div className="quiz-options-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-
-            {currentQ.options.map((opt, idx) => {
-              let btnStyle = { padding: '1.5rem', textAlign: 'left', fontWeight: '500' };
-              let className = "btn btn-secondary";
-              
-              if (isAnswered) {
-                if (opt === target.name.common) {
-                  btnStyle.borderColor = '#10b981';
-                  btnStyle.background = 'rgba(16, 185, 129, 0.1)';
-                  btnStyle.color = '#10b981';
-                } else if (opt === selectedAnswer) {
-                  btnStyle.borderColor = '#ef4444';
-                  btnStyle.background = 'rgba(239, 68, 68, 0.1)';
-                  btnStyle.color = '#ef4444';
+            <div className="options-grid-ww">
+              {currentQ.options[language].map((opt, idx) => {
+                const isCorrect = idx === currentQ.correctAnswer;
+                const isSelected = idx === selectedAnswer;
+                
+                let className = "option-btn-ww animate-up";
+                if (isAnswered) {
+                  if (isCorrect) className += " correct";
+                  else if (isSelected) className += " wrong";
                 }
-              }
 
-              return (
-                <button 
-                  key={idx} 
-                  className={className} 
-                  style={btnStyle}
-                  onClick={() => handleAnswer(opt)}
-                >
-                  <span style={{ marginRight: '1rem', opacity: '0.5' }}>{idx + 1}.</span>
-                  {opt}
-                </button>
-              );
-            })}
+                return (
+                  <button 
+                    key={idx} 
+                    className={className}
+                    onClick={() => handleAnswer(idx)}
+                    disabled={isAnswered}
+                    style={{ 
+                        animationDelay: `${idx * 0.1}s`,
+                    }}
+                  >
+                    <span className="option-letter">
+                      {String.fromCharCode(65 + idx)}
+                    </span>
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+
+            {isAnswered && (
+              <div className="animate-pop glass-card" style={{ 
+                marginTop: '2rem', 
+                padding: '2rem', 
+                textAlign: 'left',
+                border: '1px solid var(--primary-muted)'
+              }}>
+                <p style={{ fontSize: '1.1rem', color: 'var(--text-primary)', lineHeight: '1.6' }}>
+                  <span style={{ marginRight: '0.5rem' }}>💡</span>
+                  {currentQ.explanation[language]}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -205,53 +284,73 @@ const Quizzes = () => {
   }
 
   return (
-    <div className="quiz-grid-wrapper">
-      <div className="quiz-grid">
-        <div className="glass-card quiz-card" onClick={() => startQuiz('FLAG')} style={{ cursor: 'pointer', padding: '1.25rem' }}>
-          <div className="quiz-icon" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🚩</div>
-          <h3 className="font-serif" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Флаги Мира</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Проверьте свою память и знание символов.</p>
-        </div>
-
-        <div className="glass-card quiz-card" onClick={() => startQuiz('FACT')} style={{ cursor: 'pointer', padding: '1.25rem' }}>
-          <div className="quiz-icon" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🌍</div>
-          <h3 className="font-serif" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Анализ Фактов</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Сможете ли вы узнать страну по её описанию?</p>
-        </div>
-
-        <div className="glass-card quiz-card" onClick={() => startQuiz('SHAPE')} style={{ cursor: 'pointer', padding: '1.25rem' }}>
-          <div className="quiz-icon" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🗺️</div>
-          <h3 className="font-serif" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Контурная Карта</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Узнайте государство по его уникальным очертаниям.</p>
-        </div>
-
+    <div className="wordwall-quiz-container">
+      <div className="quiz-category-tabs">
+        <button 
+          className={`quiz-category-tab ${activeCategory === 'kz' ? 'active' : ''}`}
+          onClick={() => setActiveCategory('kz')}
+        >
+          <img src="https://purecatamphetamine.github.io/country-flag-icons/3x2/KZ.svg" alt="KZ" style={{ width: '22px', borderRadius: '3px' }} />
+          {language === 'ru' ? 'Казахстан' : 'Қазақстан'}
+        </button>
+        <button 
+          className={`quiz-category-tab ${activeCategory === 'world' ? 'active' : ''}`}
+          onClick={() => setActiveCategory('world')}
+        >
+          🌍 {language === 'ru' ? 'Мир' : 'Әлем'}
+        </button>
       </div>
-      <style>{`
-        @media (max-width: 768px) {
-          .quiz-active-view .glass-card {
-            padding: 1.5rem !important;
-          }
-          .quiz-active-view h3 {
-            font-size: 1.4rem !important;
-            margin-bottom: 1.5rem !important;
-          }
-          .quiz-active-view .quiz-options-grid {
-            grid-template-columns: 1fr !important;
-            gap: 1rem !important;
-          }
 
+      <div className="quiz-selection-grid">
+        {filteredQuizzes.map((quiz, qIdx) => (
+          <div 
+            key={quiz.id} 
+            className="quiz-selection-tile animate-pop" 
+            onClick={() => startQuiz(quiz)}
+            style={{ animationDelay: `${qIdx * 0.1}s` }}
+          >
+            <div className="quiz-icon-ww" style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>
+              {getQuizIcon(quiz.iconName)}
+            </div>
+            <h3 style={{ fontSize: '1.4rem', marginBottom: '0.5rem', color: 'white', fontFamily: 'Playfair Display, serif' }}>
+              {quiz.title[language]}
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: '1.4', maxWidth: '220px' }}>
+              {quiz.description[language]}
+            </p>
+            
+            <div style={{ 
+                fontSize: '0.7rem', 
+                background: 'rgba(255,255,255,0.05)', 
+                padding: '4px 10px', 
+                borderRadius: '10px',
+                display: 'inline-block',
+                marginTop: 'auto',
+                color: quiz.difficulty === 3 ? '#ef4444' : quiz.difficulty === 2 ? '#f59e0b' : '#10b981',
+                border: '1px solid currentColor',
+                fontWeight: '700'
+            }}>
+              {t.difficultyLabel}: {quiz.difficulty === 3 ? t.diffHard : quiz.difficulty === 2 ? t.diffMedium : t.diffEasy}
+            </div>
 
-          .quiz-active-view img {
-            max-width: 100% !important;
-          }
-          .quiz-active-view svg {
-            width: 100% !important;
-            height: auto !important;
-          }
-        }
-      `}</style>
+            <div style={{
+                fontSize: '0.75rem',
+                color: 'var(--primary)',
+                fontWeight: 'bold',
+                marginTop: '8px'
+            }}>
+              ✨ {t.potentialReward}: {Math.round(100 * (quiz.difficulty === 3 ? 2.0 : quiz.difficulty === 2 ? 1.5 : 1.0))} XP
+            </div>
+            
+            <div className="play-button-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-
   );
 };
 

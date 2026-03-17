@@ -1,67 +1,111 @@
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useGameState } from '../context/GameStateContext';
 
 const Navbar = ({ onAuthClick, isScrolled }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const { level, levelTitle, xp, coins, xpForNextLevel, progressInLevel, isLoggedIn, user, logout, language, setLanguage, t } = useGameState();
 
   return (
-    <nav className={isScrolled ? 'scrolled' : ''}>
+    <nav className={isScrolled ? 'scrolled shadow-lg' : ''}>
       <div className="container nav-content">
-        <a href="/" className="logo">
-          Qazaq<span>Geo</span>
-        </a>
+        <div className="nav-brand">
+          <Link to="/" className="logo">
+            Geo<span>Sana</span>
+          </Link>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div className="nav-level-badge">
+              <div className="level-num">LVL {level}</div>
+              <div className="xp-progress">
+                <div className="xp-bar" style={{ width: `${progressInLevel}%` }}></div>
+                <span className="xp-tooltip">{levelTitle} • {xp}/{xpForNextLevel} XP</span>
+              </div>
+            </div>
 
-        <div className={`nav-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-          <a href="#map" onClick={() => setIsMobileMenuOpen(false)}>Регионы</a>
-          <a href="#tutor" onClick={() => setIsMobileMenuOpen(false)}>ИИ-Наставник</a>
-          <a href="#quizzes" onClick={() => setIsMobileMenuOpen(false)}>Тестирование</a>
-
-          <button 
-            onClick={() => {
-              onAuthClick();
-              setIsMobileMenuOpen(false);
-            }} 
-            className="btn btn-primary"
-            style={{ padding: '0.6rem 1.5rem', fontSize: '0.85rem' }}
-          >
-            Войти
-          </button>
+            {isLoggedIn && (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '5px', 
+                background: 'rgba(255, 215, 0, 0.1)', 
+                padding: '4px 10px', 
+                borderRadius: '15px',
+                border: '1px solid rgba(255, 215, 0, 0.3)',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                color: 'gold'
+              }}>
+                <span>💰</span>
+                <span>{coins}</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        <button 
-          className="mobile-toggle"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
-          style={{ display: 'none' }}
-        >
-          {isMobileMenuOpen ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+        <div className="nav-links">
+          <Link to="/" className={location.pathname === '/' ? 'active' : ''}>{t.map}</Link>
+          <Link to="/quizzes" className={location.pathname === '/quizzes' ? 'active' : ''}>{t.quizzes}</Link>
+
+          <div className="lang-toggle" style={{ display: 'flex', gap: '5px', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '20px', border: '1px solid var(--border)' }}>
+            <button 
+              onClick={() => setLanguage('ru')} 
+              className={language === 'ru' ? 'active' : ''}
+              style={{ 
+                border: 'none', 
+                background: language === 'ru' ? 'var(--primary)' : 'transparent', 
+                color: 'white', 
+                borderRadius: '15px', 
+                padding: '2px 8px', 
+                fontSize: '0.7rem', 
+                cursor: 'pointer',
+                transition: 'var(--transition)'
+              }}
+            >
+              RU
+            </button>
+            <button 
+              onClick={() => setLanguage('kz')} 
+              className={language === 'kz' ? 'active' : ''}
+              style={{ 
+                border: 'none', 
+                background: language === 'kz' ? 'var(--primary)' : 'transparent', 
+                color: 'white', 
+                borderRadius: '15px', 
+                padding: '2px 8px', 
+                fontSize: '0.7rem', 
+                cursor: 'pointer',
+                transition: 'var(--transition)'
+              }}
+            >
+              KZ
+            </button>
+          </div>
+
+          {isLoggedIn ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <Link to="/cabinet" style={{ fontWeight: '700', color: 'var(--primary)' }}>
+                {user?.name || t.cabinet}
+              </Link>
+              <button 
+                onClick={() => logout()} 
+                className="btn btn-secondary"
+                style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', opacity: 0.8 }}
+              >
+                {t.logout}
+              </button>
+            </div>
           ) : (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
+            <button 
+              onClick={() => onAuthClick()} 
+              className="btn btn-primary"
+              style={{ padding: '0.6rem 1.5rem', fontSize: '0.85rem' }}
+            >
+              {isLoggedIn ? t.cabinet : t.logout?.replace('Выйти', 'Войти')}
+            </button>
           )}
-        </button>
+        </div>
       </div>
-      {isMobileMenuOpen && (
-        <div 
-          className="menu-overlay" 
-          onClick={() => setIsMobileMenuOpen(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'rgba(0,0,0,0.5)',
-            zIndex: 1000
-          }}
-        />
-      )}
     </nav>
 
   );
