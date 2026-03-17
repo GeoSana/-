@@ -120,7 +120,7 @@ const SongQuiz = ({ quiz, onComplete, language, t }) => {
             >
               {isPlaying ? '⏸' : '▶️'}
             </button>
-            <audio ref={audioRef} src={currentQ.audioUrl} onEnded={() => setIsPlaying(false)} />
+            <audio ref={audioRef} src={currentQ.audioUrl.startsWith('http') ? currentQ.audioUrl : (window.location.pathname.startsWith('/-') ? '/-/' : '/') + currentQ.audioUrl.replace(/^\//, '')} onEnded={() => setIsPlaying(false)} />
           </div>
         </div>
 

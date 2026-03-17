@@ -76,7 +76,7 @@ const MapLabeling = ({ quiz, onComplete, language, t }) => {
           </div>
         )}
         <img 
-          src={mapImage} 
+          src={mapImage.startsWith('http') ? mapImage : (window.location.pathname.startsWith('/-') ? '/-/' : '/') + mapImage.replace(/^\//, '')} 
           alt="Map" 
           onLoad={() => setIsLoading(false)}
           onError={(e) => {

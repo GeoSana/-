@@ -12,8 +12,11 @@ import { useGameState } from './context/GameStateContext';
 function App() {
   const [showAuth, setShowAuth] = useState(false);
 
+  // Determine basename dynamically to work both on root and subfolder (/-)
+  const basename = window.location.pathname.startsWith('/-') ? '/-' : '';
+
   return (
-    <Router basename="/-">
+    <BrowserRouter basename={basename}>
       <AchievementPopup />
       <MainLayout onAuthClick={() => setShowAuth(true)}>
         <Routes>
@@ -45,7 +48,7 @@ function App() {
 
         <AITutor />
       </MainLayout>
-    </Router>
+    </BrowserRouter>
   );
 }
 
