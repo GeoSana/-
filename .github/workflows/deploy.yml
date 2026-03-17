@@ -6,7 +6,6 @@ on:
   push:
     branches: ["main"]
 
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -23,11 +22,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying; no build needed for simple sites
+  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps:deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
