@@ -502,6 +502,14 @@ body::before {
   z-index: -1;
 }
 
+body.no-background {
+  background-image: none !important;
+}
+
+body.no-background::before {
+  display: none !important;
+}
+
 h1, h2, h3, h4, .font-serif {
   font-family: 'Playfair Display', serif;
   font-weight: 700;

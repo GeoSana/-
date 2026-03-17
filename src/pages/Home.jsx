@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import InteractiveMap from '../components/InteractiveMap';
 import DemographicsChart from '../components/DemographicsChart';
 import kaz1 from '../assets/kaz_landscape_1.png';
@@ -9,6 +9,11 @@ import { useGameState } from '../context/GameStateContext';
 
 const Home = ({ onAuthClick }) => {
   const { isLoggedIn, t, language } = useGameState();
+  
+  useEffect(() => {
+    document.body.classList.add('no-background');
+    return () => document.body.classList.remove('no-background');
+  }, []);
 
   return (
     <>
