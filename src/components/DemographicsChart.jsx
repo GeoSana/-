@@ -21,6 +21,16 @@ const CustomTooltip = ({ active, payload, label, t, metric }) => {
 const DemographicsChart = () => {
   const { language, t } = useGameState();
   const [metric, setMetric] = useState('population');
+  const [windowWidth, setWindowWidth] = React.useState(window.innerWidth);
+
+  React.useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
+  const yAxisWidth = isMobile ? (language === 'kz' ? 90 : 100) : (language === 'kz' ? 120 : 150);
 
   const cleanNumber = (str) => parseInt(str.replace(/\D/g, ''), 10);
 
@@ -39,63 +49,45 @@ const DemographicsChart = () => {
   const isPop = metric === 'population';
 
   return (
-    <div className="glass-card animate-up" style={{ padding: '2.5rem', marginTop: '4rem' }}>
-      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h3 className="font-serif" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>
+    <div className="glass-card animate-up demographics-card" style={{ marginTop: '4rem' }}>
+      <div className="chart-header-area">
+        <div className="chart-title-area">
+          <h3 className="font-serif chart-title">
             {isPop ? t.demographics : (language === 'kz' ? 'Аймақтар Аумағы' : 'Площадь Регионов')}
           </h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '800px' }}>
+          <p className="chart-subtitle">
             {isPop ? t.demographicsDesc : (language === 'kz' ? 'Қазақстанның ең үлкен аймақтары шаршы шақырыммен' : 'Самые большие регионы Казахстана в квадратных километрах')}
           </p>
         </div>
         
-        <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.25rem', borderRadius: '8px' }}>
+        <div className="chart-toggle-buttons">
           <button 
             onClick={() => setMetric('population')}
-            style={{ 
-              padding: '0.5rem 1rem', 
-              borderRadius: '6px',
-              border: 'none',
-              background: isPop ? 'var(--primary)' : 'transparent',
-              color: isPop ? '#fff' : 'var(--text-muted)',
-              cursor: 'pointer',
-              fontWeight: isPop ? '600' : '400',
-              transition: 'all 0.2s'
-            }}
+            className={`chart-type-btn ${isPop ? 'active' : ''}`}
           >
             {t.population || (language === 'kz' ? 'Халық саны' : 'Население')}
           </button>
           <button 
             onClick={() => setMetric('area')}
-            style={{ 
-              padding: '0.5rem 1rem', 
-              borderRadius: '6px',
-              border: 'none',
-              background: !isPop ? 'var(--primary)' : 'transparent',
-              color: !isPop ? '#fff' : 'var(--text-muted)',
-              cursor: 'pointer',
-              fontWeight: !isPop ? '600' : '400',
-              transition: 'all 0.2s'
-            }}
+            className={`chart-type-btn ${!isPop ? 'active' : ''}`}
           >
             {t.area || (language === 'kz' ? 'Аумағы' : 'Площадь')}
           </button>
         </div>
       </div>
 
-      <div style={{ width: '100%', height: 400, minWidth: 0 }}>
+      <div className="chart-container-inner" style={{ width: '100%', height: isMobile ? 350 : 450, minWidth: 0 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={sortedData}
             layout="vertical"
-            margin={{ top: 5, right: 30, left: language === 'kz' ? 120 : 150, bottom: 5 }}
+            margin={{ top: 5, right: isMobile ? 10 : 30, left: 0, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
             <XAxis 
               type="number" 
               stroke="var(--text-muted)" 
-              fontSize={12} 
+              fontSize={isMobile ? 10 : 12} 
               tickFormatter={(value) => isPop ? `${(value / 1000000).toFixed(1)}M` : `${(value / 1000)}k`}
               axisLine={false}
               tickLine={false}
@@ -104,13 +96,14 @@ const DemographicsChart = () => {
               dataKey="displayName" 
               type="category" 
               stroke="var(--text-secondary)" 
-              fontSize={12} 
-              width={language === 'kz' ? 120 : 150}
+              fontSize={isMobile ? 10 : 12} 
+              width={yAxisWidth}
               axisLine={false}
               tickLine={false}
+              tick={{ width: yAxisWidth }}
             />
             <Tooltip content={<CustomTooltip t={t} metric={metric} />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
-            <Bar dataKey={metric} radius={[0, 4, 4, 0]} barSize={24}>
+            <Bar dataKey={metric} radius={[0, 4, 4, 0]} barSize={isMobile ? 16 : 24}>
               {sortedData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
