@@ -95,11 +95,11 @@ const AITutor = () => {
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       
-      if (apiKey && apiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
+      if (apiKey && apiKey.length > 10 && apiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
         const systemPrompt = `You are a helpful AI guide for Kazakhstan geography. 
         Answer in ${language === 'kz' ? 'Kazakh' : 'Russian'}. 
-        Keep answers concise and informative. 
-        Use the following knowledge base if relevant: ${JSON.stringify(knowledgeBase[language])}`;
+        Keep answers short. 
+        Knowledge base: ${JSON.stringify(knowledgeBase[language])}`;
 
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
@@ -115,29 +115,26 @@ const AITutor = () => {
             answer = data.candidates[0].content.parts[0].text;
           }
         } else {
-          const errData = await response.json();
-          console.error('Gemini API error details:', errData);
+          console.error('Gemini API Error:', await response.text());
         }
-      } else {
-        console.warn('VITE_GEMINI_API_KEY is missing or invalid in .env');
       }
     } catch (error) {
-      console.error('AI API call failed:', error);
+      console.error('AI Bot Request Failed:', error);
     }
 
-    // 2. Fallback to Local Knowledge Base if AI failed or returned no answer
+    // 2. Fallback to Local Knowledge Base
     if (!answer) {
       answer = findAnswer(messageText);
     }
 
-    // 3. Default response if nothing found
+    // 3. Last Resort
     if (!answer) {
       answer = language === 'kz' 
-        ? "Бұл өте жақсы сұрақ! Қазақстан туралы шексіз айтуға болады. Нақтырақ не білгіңіз келеді?" 
-        : "Это отличный вопрос! О Казахстане можно рассказывать бесконечно. Что именно вы хотели бы уточнить?";
+        ? "Шынымды айтсам, бұл сұраққа қазір жауап бере алмай тұрмын. Басқа нәрсе сұрап көріңізші немесе Астана, Алматы, Байқоңыр туралы сұраңыз." 
+        : "К сожалению, я не нашел точного ответа в базе знаний. Попробуйте спросить об Астане, Алматы, Байконуре или площади страны.";
     }
 
-    setMessages(prev => [...prev, { id: nextId++, text: answer, sender: 'ai' }]);
+    setMessages(prev => [...prev, { id: Date.now(), text: answer, sender: 'ai' }]);
     setIsTyping(false);
   };
 
