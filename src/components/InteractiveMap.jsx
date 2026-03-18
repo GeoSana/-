@@ -196,7 +196,15 @@ const InteractiveMap = () => {
                 {activeRegion.description[language]}
               </p>
 
-              <button className="btn btn-primary" style={{ width: '100%', background: activeRegion.color || 'var(--primary)' }}>
+              <button 
+                className="btn btn-primary" 
+                style={{ width: '100%', background: activeRegion.color || 'var(--primary)' }}
+                onClick={() => {
+                  const wikiLang = language === 'kz' ? 'kk' : 'ru';
+                  const wikiUrl = `https://${wikiLang}.wikipedia.org/wiki/${encodeURIComponent(activeRegion.name[language])}`;
+                  window.open(wikiUrl, '_blank');
+                }}
+              >
                 {t.moreDetails}
               </button>
             </div>
