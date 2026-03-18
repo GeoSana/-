@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import InteractiveMap from '../components/InteractiveMap';
 import DemographicsChart from '../components/DemographicsChart';
 import kaz1 from '../assets/kaz_landscape_1.png';
@@ -36,7 +37,7 @@ const Home = ({ onAuthClick }) => {
             <div className="hero-buttons" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
               <a href="#map" className="btn btn-primary">{t.startExploring}</a>
               {isLoggedIn ? (
-                <a href="/cabinet" className="btn btn-secondary">{t.cabinet}</a>
+                <Link to="/cabinet" className="btn btn-secondary">{t.cabinet}</Link>
               ) : (
                 <button onClick={onAuthClick} className="btn btn-secondary">{t.cabinet}</button>
               )}
