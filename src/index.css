@@ -638,46 +638,6 @@ nav.scrolled {
   color: var(--text-primary);
 }
 
-/* Language Toggle Styling */
-.lang-toggle-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.lang-toggle {
-  display: flex;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 4px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  backdrop-filter: blur(8px);
-  gap: 2px;
-}
-
-.lang-toggle button {
-  background: transparent;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  text-transform: uppercase;
-}
-
-.lang-toggle button:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.lang-toggle button.active {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-}
-
 /* ===================== HERO SECTION ===================== */
 .hero {
   padding: 160px 0 100px;
@@ -1616,16 +1576,6 @@ footer {
     padding: 1.5rem;
   }
 
-  .lang-toggle {
-    width: auto;
-    padding: 6px !important;
-  }
-
-  .lang-toggle button {
-    padding: 6px 16px !important;
-    font-size: 0.85rem !important;
-  }
-
   .nav-user-area {
     width: 100%;
     flex-direction: column;
@@ -1829,4 +1779,55 @@ footer {
 .achievement-card.glass-card:hover {
   background: rgba(255, 255, 255, 0.05);
   border-color: var(--primary);
+}
+
+/* ===================== LANGUAGE TOGGLE PREMIUM FIX ===================== */
+.lang-toggle-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center;
+}
+
+.lang-toggle {
+  display: flex !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  padding: 4px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px) !important;
+  gap: 2px !important;
+  width: auto !important;
+}
+
+.lang-toggle button {
+  background: transparent !important;
+  border: none !important;
+  padding: 6px 16px !important;
+  border-radius: 8px !important;
+  color: #94a3b8 !important; /* text-secondary */
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  width: auto !important;
+  min-width: 50px !important;
+}
+
+.lang-toggle button:hover {
+  color: #f8fafc !important; /* text-primary */
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.lang-toggle button.active {
+  background: #0ea5e9 !important; /* primary */
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4) !important;
+}
+
+@media (max-width: 1024px) {
+  .lang-toggle-wrapper {
+    width: 100% !important;
+    margin: 1rem 0 !important;
+  }
 }
