@@ -181,14 +181,14 @@ const InteractiveMap = () => {
                 </span>
               </div>
 
-              <div className="stats-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
-                <div style={{ padding: '1rem 0', borderBottom: '1px solid var(--border)' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginBottom: '0.25rem' }}>{t.area?.toUpperCase()}</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>{activeRegion.area}</div>
+              <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+                <div style={{ padding: '0.75rem 0', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: '800', marginBottom: '0.25rem', letterSpacing: '0.05em' }}>{t.area?.toUpperCase()}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '700', color: 'white' }}>{activeRegion.area}</div>
                 </div>
-                <div style={{ padding: '1rem 0', borderBottom: '1px solid var(--border)' }}>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginBottom: '0.25rem' }}>{t.population?.toUpperCase()}</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>{activeRegion.population} {t.people}</div>
+                <div style={{ padding: '0.75rem 0', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: '800', marginBottom: '0.25rem', letterSpacing: '0.05em' }}>{t.population?.toUpperCase()}</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '700', color: 'white' }}>{activeRegion.population}</div>
                 </div>
               </div>
 
@@ -223,31 +223,44 @@ const InteractiveMap = () => {
       </div>
 
       <style>{`
+        .map-section-wrapper {
+          padding-top: 2rem;
+        }
         @media (max-width: 1024px) {
           .map-grid-container {
             grid-template-columns: 1fr !important;
-            gap: 1.5rem !important;
+            gap: 2rem !important;
+          }
+          .info-panel-wrapper {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            border: 1px solid var(--border);
           }
         }
         @media (max-width: 768px) {
-          .map-grid-container .glass-card {
-            padding: 1.25rem !important;
+          .map-grid-container {
+            gap: 1.5rem !important;
           }
           .info-panel-wrapper h3 {
-            font-size: 1.5rem !important;
-            margin-bottom: 0.25rem !important;
+            font-size: 1.8rem !important;
           }
           .stats-grid {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 0.75rem !important;
+            gap: 1rem !important;
           }
         }
         @media (max-width: 480px) {
-          .stats-grid {
-            grid-template-columns: 1fr !important;
+          .map-section-wrapper {
+            padding-top: 1rem;
           }
           .interactive-svg {
-            margin: -10px 0;
+            margin: 0 -15px;
+            width: calc(100% + 30px) !important;
+          }
+          .info-panel-wrapper {
+             padding: 0.5rem !important;
+          }
+          .info-panel-wrapper h3 {
+            font-size: 1.5rem !important;
           }
         }
       `}</style>

@@ -31,16 +31,9 @@ function App() {
         </Routes>
         
         {showAuth && (
-          <div className="modal-overlay" onClick={() => setShowAuth(false)} style={{
-            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-            background: 'rgba(0,0,0,0.85)', zIndex: 10000, display: 'flex',
-            alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(15px)'
-          }}>
-            <div onClick={e => e.stopPropagation()} style={{ position: 'relative', width: '100%', maxWidth: '480px' }}>
-              <button className="auth-close-btn" onClick={() => setShowAuth(false)} style={{
-                position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none',
-                border: 'none', color: 'white', fontSize: '1.8rem', cursor: 'pointer', zIndex: 10, opacity: 0.5
-              }}>×</button>
+          <div className="modal-overlay" onClick={() => setShowAuth(false)}>
+            <div className="modal-container" onClick={e => e.stopPropagation()}>
+              <button className="auth-close-btn" onClick={() => setShowAuth(false)}>×</button>
               <Auth onSuccess={() => setShowAuth(false)} />
             </div>
           </div>

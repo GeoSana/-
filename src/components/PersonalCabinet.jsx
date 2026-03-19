@@ -9,46 +9,36 @@ const PersonalCabinet = () => {
   if (!isLoggedIn) return null;
 
   return (
-    <section id="cabinet" className="animate-up" style={{ padding: '6rem 0', background: 'rgba(255,255,255,0.01)' }}>
+    <section id="cabinet" className="cabinet-section animate-up">
       <div className="container">
-        <div className="section-header" style={{ textAlign: 'left', marginBottom: '4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '2rem' }}>
-          <div>
-            <h2 style={{ fontSize: '3rem', marginBottom: '1rem' }}>{showShop ? t.shopTitle : t?.cabinet}</h2>
-            <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>
+        <div className="cabinet-header">
+          <div className="cabinet-title-area">
+            <h2 className="cabinet-title">{showShop ? t.shopTitle : t?.cabinet}</h2>
+            <p className="cabinet-subtitle">
               {language === 'ru' ? 'Добро пожаловать обратно, ' : 'Қош келдіңіз, '}
-              <span style={{ color: 'var(--primary)', fontWeight: '700' }}>{user?.name}</span>!
+              <span className="user-name-highlight">{user?.name}</span>!
             </p>
           </div>
           
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="cabinet-actions">
             <button 
               onClick={() => setShowShop(!showShop)}
-              className="glass-card"
-              style={{ 
-                padding: '1rem 2rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '1rem', 
-                border: showShop ? '2px solid var(--primary)' : '1px solid rgba(255, 255, 255, 0.1)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                background: showShop ? 'rgba(79, 70, 229, 0.1)' : 'rgba(255,255,255,0.03)'
-              }}
+              className={`shop-toggle-btn glass-card ${showShop ? 'active' : ''}`}
             >
-              <div style={{ fontSize: '1.5rem' }}>{showShop ? '👤' : '🏪'}</div>
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: showShop ? 'var(--primary)' : 'white' }}>
+              <div className="action-icon">{showShop ? '👤' : '🏪'}</div>
+              <div className="action-text">
+                <div className="action-title">
                   {showShop ? (language === 'kz' ? 'Профиль' : 'Профиль') : t.shopTitle}
                 </div>
-                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', opacity: 0.6 }}>{t.shopCoins}: {coins}</div>
+                <div className="action-details">{t.shopCoins}: {coins}</div>
               </div>
             </button>
 
-            <div className="glass-card" style={{ padding: '1.1rem 2rem', display: 'flex', alignItems: 'center', gap: '1rem', border: '1px solid rgba(255, 215, 0, 0.3)' }}>
-              <div style={{ fontSize: '1.5rem' }}>🔥</div>
-              <div>
-                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffd700' }}>{streak?.count || 0} {t?.days}</div>
-                <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', opacity: 0.6 }}>{t?.streak}</div>
+            <div className="streak-badge glass-card">
+              <div className="action-icon">🔥</div>
+              <div className="action-text">
+                <div className="action-title streak-count">{streak?.count || 0} {t?.days}</div>
+                <div className="action-details">{t?.streak}</div>
               </div>
             </div>
           </div>
@@ -58,87 +48,87 @@ const PersonalCabinet = () => {
           <Shop />
         ) : (
           <>
-            <div className="cabinet-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
-              <div className="glass-card" style={{ padding: '2.5rem', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>⭐</div>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--primary)', fontWeight: '700', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>{t.rank}</div>
-                <div style={{ fontSize: '3.5rem', fontWeight: '900', color: 'white', lineHeight: 1 }}>{level}</div>
-                <div style={{ fontSize: '1.2rem', color: '#ffd700', fontWeight: '700', marginTop: '0.5rem' }}>{levelTitle}</div>
+            <div className="cabinet-grid">
+              <div className="glass-card rank-card">
+                <div className="rank-bg-icon">⭐</div>
+                <div className="card-label">{t.rank}</div>
+                <div className="rank-number">{level}</div>
+                <div className="rank-title">{levelTitle}</div>
                 
-                <div style={{ marginTop: '2rem' }}>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-                      <span style={{ color: 'var(--text-secondary)' }}>{xp} XP</span>
-                      <span style={{ color: 'white', fontWeight: '700' }}>{xpForNextLevel} XP</span>
+                <div className="xp-container">
+                   <div className="xp-values">
+                      <span>{xp} XP</span>
+                      <span>{xpForNextLevel} XP</span>
                    </div>
-                   <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{ width: `${progressInLevel}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary), #6366f1)', boxShadow: '0 0 10px var(--primary)' }}></div>
+                   <div className="xp-progress-bg">
+                      <div className="xp-progress-fill" style={{ width: `${progressInLevel}%` }}></div>
                    </div>
                 </div>
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                  <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🗺️</div>
-                    <div style={{ fontSize: '2rem', fontWeight: '800' }}>{discoveredRegions.length}</div>
-                    <div style={{ fontSize: '0.7rem', opacity: 0.6, textTransform: 'uppercase' }}>{t.allRegions}</div>
+              <div className="stats-mini-grid">
+                  <div className="glass-card stat-mini-card">
+                    <div className="mini-icon">🗺️</div>
+                    <div className="mini-value">{discoveredRegions.length}</div>
+                    <div className="mini-label">{t.allRegions}</div>
                   </div>
-                  <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💰</div>
-                    <div style={{ fontSize: '2rem', fontWeight: '800', color: 'gold' }}>{coins}</div>
-                    <div style={{ fontSize: '0.7rem', opacity: 0.6, textTransform: 'uppercase' }}>{t.shopCoins}</div>
+                  <div className="glass-card stat-mini-card">
+                    <div className="mini-icon">💰</div>
+                    <div className="mini-value coin-text">{coins}</div>
+                    <div className="mini-label">{t.shopCoins}</div>
                   </div>
-                  <div className="glass-card" style={{ padding: '2rem', textAlign: 'center', gridColumn: 'span 2' }}>
-                    <div style={{ fontSize: '0.7rem', opacity: 0.6, textTransform: 'uppercase', marginBottom: '0.5rem' }}>{t.records}</div>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem' }}>
-                       <div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.today}</div>
-                          <div style={{ fontSize: '1.5rem', fontWeight: '700' }}>+150</div>
+                  <div className="glass-card records-card">
+                    <div className="mini-label">{t.records}</div>
+                    <div className="records-split">
+                       <div className="record-item">
+                          <div className="record-label">{t.today}</div>
+                          <div className="record-value">+150</div>
                        </div>
-                       <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-                       <div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{t.best}</div>
-                          <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--primary)' }}>1,240</div>
+                       <div className="record-divider"></div>
+                       <div className="record-item">
+                          <div className="record-label">{t.best}</div>
+                          <div className="record-value primary-text">1,240</div>
                        </div>
                     </div>
                   </div>
               </div>
 
-              <div className="glass-card" style={{ padding: '2rem' }}>
-                 <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div className="glass-card quests-card">
+                 <h3 className="card-header-title">
                     <span>🎯</span> {t?.dailyQuests}
                  </h3>
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                 <div className="quests-list">
                     {quests && Object.entries(quests.daily || {}).map(([id, quest]) => (
-                       <div key={id} style={{ opacity: quest.completed ? 0.6 : 1 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
-                             <div style={{ fontSize: '0.9rem', fontWeight: '700' }}>
+                       <div key={id} className={`quest-item ${quest.completed ? 'completed' : ''}`}>
+                          <div className="quest-header">
+                             <div className="quest-title">
                                {t?.questList?.[id]?.title} {quest.completed && '✅'}
                              </div>
-                             <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '800' }}>+{quest.xp} XP</div>
+                             <div className="quest-reward">+{quest.xp} XP</div>
                           </div>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{t?.questList?.[id]?.desc}</p>
-                          <div style={{ height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
-                             <div style={{ width: `${(quest.progress / quest.total) * 100}%`, height: '100%', background: quest.completed ? '#10b981' : 'var(--primary)', transition: 'width 0.5s ease' }}></div>
+                          <p className="quest-desc">{t?.questList?.[id]?.desc}</p>
+                          <div className="quest-progress-bg">
+                             <div className="quest-progress-fill" style={{ width: `${(quest.progress / quest.total) * 100}%`, background: quest.completed ? '#10b981' : 'var(--primary)' }}></div>
                           </div>
                        </div>
                     ))}
                  </div>
               </div>
 
-              <div className="glass-card" style={{ padding: '2rem' }}>
-                 <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div className="glass-card leaderboard-card">
+                 <h3 className="card-header-title">
                     <span>📊</span> {t?.leaderboard}
                  </h3>
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                 <div className="leaderboard-list">
                     {t?.mockLeaderboard?.map((player, index) => (
-                       <div key={player.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem', background: index === 0 ? 'rgba(255, 215, 0, 0.1)' : 'rgba(255,255,255,0.03)', borderRadius: '12px', border: index === 0 ? '1px solid rgba(255, 215, 0, 0.2)' : '1px solid transparent' }}>
-                          <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: index === 0 ? '#ffd700' : 'rgba(255,255,255,0.1)', color: index === 0 ? '#000' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: '800' }}>
+                       <div key={player.id} className={`leaderboard-item ${index === 0 ? 'top-player' : ''}`}>
+                          <div className="player-rank">
                              {index + 1}
                           </div>
-                          <div style={{ flex: 1, fontSize: '0.9rem', fontWeight: '600' }}>{player.name}</div>
-                          <div style={{ textAlign: 'right' }}>
-                             <div style={{ fontSize: '0.9rem', fontWeight: '700' }}>{player.level} LVL</div>
-                             <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{player.xp} XP</div>
+                          <div className="player-name">{player.name}</div>
+                          <div className="player-stats">
+                             <div className="player-level">{player.level} LVL</div>
+                             <div className="player-xp">{player.xp} XP</div>
                           </div>
                        </div>
                     ))}
