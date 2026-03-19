@@ -95,17 +95,24 @@ const AITutor = () => {
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       
-      if (apiKey && apiKey.length > 10 && apiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
-        const systemPrompt = `You are a helpful AI guide for Kazakhstan geography. 
-        Answer in ${language === 'kz' ? 'Kazakh' : 'Russian'}. 
-        Keep answers short. 
-        Knowledge base: ${JSON.stringify(knowledgeBase[language])}`;
+      if (apiKey && apiKey.length > 20 && apiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
+        const systemPrompt = `You are a helpful, friendly AI guide for Kazakhstan geography and culture. 
+        Current language: ${language === 'kz' ? 'Kazakh' : 'Russian'}. 
+        You must MUST answer in ${language === 'kz' ? 'Kazakh' : 'Russian'}. 
+        Keep your answers concise and engaging (max 3-4 sentences). 
+        Mention specific facts about cities, nature, or symbols of Kazakhstan when relevant.
+        Knowledge base snippets for reference: ${JSON.stringify(knowledgeBase[language].slice(0, 5))}`;
+
+        // Simple chat history (last 4 messages)
+        const historyPart = messages.slice(-4).map(m => 
+          `${m.sender === 'ai' ? 'Bot' : 'User'}: ${m.text}`
+        ).join('\n');
 
         const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: `${systemPrompt}\n\nUser Question: ${messageText}` }] }]
+            contents: [{ parts: [{ text: `${systemPrompt}\n\nChat History:\n${historyPart}\n\nUser Question: ${messageText}` }] }]
           })
         });
 
@@ -113,10 +120,15 @@ const AITutor = () => {
           const data = await response.json();
           if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
             answer = data.candidates[0].content.parts[0].text;
+          } else {
+            console.warn('Gemini response format unexpected:', data);
           }
         } else {
-          console.error('Gemini API Error:', await response.text());
+          const errorText = await response.text();
+          console.error('Gemini API Error Status:', response.status, errorText);
         }
+      } else {
+        console.info('Using local knowledge base (Key missing or invalid)');
       }
     } catch (error) {
       console.error('AI Bot Request Failed:', error);
@@ -130,8 +142,8 @@ const AITutor = () => {
     // 3. Last Resort
     if (!answer) {
       answer = language === 'kz' 
-        ? "Шынымды айтсам, бұл сұраққа қазір жауап бере алмай тұрмын. Басқа нәрсе сұрап көріңізші немесе Астана, Алматы, Байқоңыр туралы сұраңыз." 
-        : "К сожалению, я не нашел точного ответа в базе знаний. Попробуйте спросить об Астане, Алматы, Байконуре или площади страны.";
+        ? "Кешіріңіз, бұл сұраққа нақты жауап таба алмадым. Басқа нәрсе сұрап көріңізші немесе Астана, Алматы, Байқоңыр туралы сұраңыз." 
+        : "К сожалению, я не нашел точного ответа в базе знаний. Попробуйте спросить об Астане, Алматы, Байконуре или истории нашей страны.";
     }
 
     setMessages(prev => [...prev, { id: Date.now(), text: answer, sender: 'ai' }]);
@@ -146,11 +158,11 @@ const AITutor = () => {
 
       <div className="chat-popup glass-card">
         <div className="chat-header">
-          <div className="chat-avatar">🇰🇿</div>
+          <div className="chat-avatar">🤖</div>
           <div className="chat-header-text">
             <div className="chat-title">AI QazaqBot</div>
             <div className="status-indicator">
-              <span className="dot" style={{ backgroundColor: import.meta.env.VITE_GEMINI_API_KEY ? '#10b981' : '#f59e0b' }}></span>
+              <span className={`status-dot ${import.meta.env.VITE_GEMINI_API_KEY ? 'online' : 'offline'}`}></span>
               {import.meta.env.VITE_GEMINI_API_KEY 
                 ? (language === 'kz' ? 'Жүйе желіде (AI)' : 'Система онлайн (AI)') 
                 : (language === 'kz' ? 'Білім қоры (Offline)' : 'База знаний (Offline)')}
