@@ -108,7 +108,7 @@ const AITutor = () => {
           `${m.sender === 'ai' ? 'Bot' : 'User'}: ${m.text}`
         ).join('\n');
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -120,15 +120,11 @@ const AITutor = () => {
           const data = await response.json();
           if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
             answer = data.candidates[0].content.parts[0].text;
-          } else {
-            console.warn('Gemini response format unexpected:', data);
           }
         } else {
           const errorText = await response.text();
           console.error('Gemini API Error Status:', response.status, errorText);
         }
-      } else {
-        console.info('Using local knowledge base (Key missing or invalid)');
       }
     } catch (error) {
       console.error('AI Bot Request Failed:', error);
