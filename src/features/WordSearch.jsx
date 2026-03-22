@@ -102,13 +102,30 @@ const WordSearch = ({ quiz, onComplete, language, t }) => {
 
   // Touch support
   const handleTouchStart = (e) => {
+    e.preventDefault(); // prevent scroll and text selection
     const touch = e.touches[0];
-    handleMouseDown(touch);
+    const coords = getCellCoords(touch);
+    if (coords) {
+      setIsSelecting(true);
+      setSelectionStart(coords);
+      setSelectionEnd(coords);
+      setSelectedCells([coords]);
+    }
   };
   const handleTouchMove = (e) => {
+    e.preventDefault(); // always prevent scroll while on grid
+    if (!isSelecting) return;
     const touch = e.touches[0];
-    handleMouseMove(touch);
-    if (isSelecting) e.preventDefault();
+    const coords = getCellCoords(touch);
+    if (coords && (coords.row !== selectionEnd?.row || coords.col !== selectionEnd?.col)) {
+      setSelectionEnd(coords);
+      calculateSelection(selectionStart, coords);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    e.preventDefault();
+    handleMouseUp();
   };
 
   const isCellInFoundWords = (r, c) => {
@@ -145,7 +162,7 @@ const WordSearch = ({ quiz, onComplete, language, t }) => {
             onMouseLeave={handleMouseUp}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
-            onTouchEnd={handleMouseUp}
+            onTouchEnd={handleTouchEnd}
             style={{
               gridTemplateRows: `repeat(${grid.length}, 1fr)`,
               gridTemplateColumns: `repeat(${grid[0].length}, 1fr)`,

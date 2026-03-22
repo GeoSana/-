@@ -106,21 +106,26 @@ const MapLabeling = ({ quiz, onComplete, language, t }) => {
                 left: `${pin.x}%`,
                 top: `${pin.y}%`,
                 transform: 'translate(-50%, -50%)',
-                width: '24px',
-                height: '24px',
+                /* Larger invisible touch area for mobile (44px standard) */
+                padding: '10px',
+                cursor: 'pointer',
+                zIndex: 10,
+              }}
+            >
+              <div style={{
+                width: '22px',
+                height: '22px',
                 borderRadius: '50%',
                 background: isMatched ? '#10b981' : isSelected ? 'var(--primary)' : isWrong ? '#ef4444' : 'white',
                 border: '3px solid rgba(0,0,0,0.3)',
-                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                zIndex: 10,
                 transition: 'all 0.3s ease',
-                boxShadow: isSelected ? '0 0 15px var(--primary)' : 'none'
-              }}
-            >
-              {isMatched && <span style={{ color: 'white', fontSize: '12px' }}>✓</span>}
+                boxShadow: isSelected ? '0 0 15px var(--primary)' : '0 2px 8px rgba(0,0,0,0.4)',
+              }}>
+                {isMatched && <span style={{ color: 'white', fontSize: '11px' }}>✓</span>}
+              </div>
             </div>
           );
         })}

@@ -35,7 +35,16 @@ const Home = ({ onAuthClick }) => {
               {t.subtitle}
             </p>
             <div className="hero-buttons" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
-              <a href="#map" className="btn btn-primary">{t.startExploring}</a>
+              <a 
+                href="#map" 
+                className="btn btn-primary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.querySelector('#map')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                {t.startExploring}
+              </a>
               {isLoggedIn ? (
                 <Link to="/cabinet" className="btn btn-secondary">{t.cabinet}</Link>
               ) : (

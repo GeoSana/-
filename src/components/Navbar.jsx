@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useGameState } from '../context/GameStateContext';
 
@@ -6,6 +6,21 @@ const Navbar = ({ onAuthClick, isScrolled }) => {
   const location = useLocation();
   const { level, levelTitle, xp, coins, xpForNextLevel, progressInLevel, isLoggedIn, user, logout, language, setLanguage, t } = useGameState();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Close menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isMenuOpen]);
 
   return (
     <nav className={`${isScrolled ? 'scrolled shadow-lg' : ''} ${isMenuOpen ? 'menu-open' : ''}`}>
@@ -32,11 +47,25 @@ const Navbar = ({ onAuthClick, isScrolled }) => {
           </div>
         </div>
 
-        <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          <span className="bar"></span>
-          <span className="bar"></span>
-          <span className="bar"></span>
+        <button
+          className="mobile-menu-toggle"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+          aria-expanded={isMenuOpen}
+        >
+          <span className={`bar ${isMenuOpen ? 'bar-open-1' : ''}`}></span>
+          <span className={`bar ${isMenuOpen ? 'bar-open-2' : ''}`}></span>
+          <span className={`bar ${isMenuOpen ? 'bar-open-3' : ''}`}></span>
         </button>
+
+        {/* Backdrop - closes menu when tapping outside */}
+        {isMenuOpen && (
+          <div
+            className="nav-backdrop"
+            onClick={() => setIsMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
 
         <div className={`nav-links ${isMenuOpen ? 'show' : ''}`}>
           <Link to="/" className={location.pathname === '/' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>{t.map}</Link>
@@ -80,7 +109,7 @@ const Navbar = ({ onAuthClick, isScrolled }) => {
               onClick={() => { onAuthClick(); setIsMenuOpen(false); }} 
               className="btn btn-primary btn-sm"
             >
-              {t.logout?.replace('Выйти', 'Войти')}
+              {t.login}
             </button>
           )}
         </div>

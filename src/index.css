@@ -484,6 +484,13 @@ body {
   overflow-x: hidden;
 }
 
+/* iOS Safari: background-attachment fixed causes repaint stutter */
+@supports (-webkit-touch-callout: none) {
+  body {
+    background-attachment: scroll;
+  }
+}
+
 /* Premium Background Overlay */
 body::before {
   content: "";
@@ -632,10 +639,115 @@ nav.scrolled {
   font-size: 0.9rem;
   font-weight: 500;
   transition: var(--transition);
+  position: relative;
 }
 
-.nav-links a:hover {
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
   color: var(--text-primary);
+}
+
+.nav-links a.active::after,
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* Hamburger → X animation */
+.mobile-menu-toggle .bar {
+  width: 25px;
+  height: 2px;
+  background: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
+  transform-origin: center;
+}
+.mobile-menu-toggle .bar-open-1 {
+  transform: translateY(7px) rotate(45deg);
+}
+.mobile-menu-toggle .bar-open-2 {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.mobile-menu-toggle .bar-open-3 {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Nav backdrop - tap outside to close menu */
+.nav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: transparent;
+}
+
+/* XP bar in navbar */
+.nav-level-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.level-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.xp-progress {
+  width: 46px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.xp-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #818cf8);
+  border-radius: 2px;
+  transition: width 0.6s ease;
+  box-shadow: 0 0 6px rgba(14, 165, 233, 0.6);
+}
+
+/* Nav cabinet link styling */
+.nav-cabinet-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.nav-cabinet-link:hover {
+  color: white;
+}
+.nav-user-name {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nav-user-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 /* ===================== HERO SECTION ===================== */
@@ -996,6 +1108,11 @@ footer {
   }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 .animate-up {
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -1005,20 +1122,19 @@ footer {
 }
 
 /* ===================== RESPONSIVE ===================== */
-/* ===================== RESPONSIVE ===================== */
 @media (max-width: 1024px) {
   nav, nav.scrolled {
     height: auto;
-    min-height: 70px;
-    padding: 12px 0;
+    min-height: 64px;
+    padding: 10px 0;
   }
 
   .nav-content {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
+    gap: 8px;
   }
 
   .nav-links {
@@ -1040,7 +1156,12 @@ footer {
   .nav-brand {
     width: auto;
     justify-content: flex-start;
-    gap: 1rem;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .nav-level-badge {
+    flex-shrink: 0;
   }
 
   .tutor-container {
@@ -1142,7 +1263,8 @@ footer {
 .floating-chat-widget {
   position: fixed;
   bottom: 30px;
-  left: 30px;
+  right: 30px;
+  left: auto;
   z-index: 2000;
   pointer-events: none; /* Let clicks through to the map unless on active elements */
 }
@@ -1259,15 +1381,25 @@ footer {
 
 @media (max-width: 480px) {
   .container {
-    padding: 0 15px;
+    padding: 0 12px;
   }
   
   .nav-brand .logo {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
   }
 
   .nav-level-badge .level-num {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+  }
+
+  /* Keep nav brand compact on small phones */
+  .nav-brand {
+    gap: 0.5rem;
+  }
+
+  .nav-coins {
+    padding: 3px 7px;
+    font-size: 0.75rem;
   }
 }
 
@@ -1279,7 +1411,8 @@ footer {
 .chat-popup {
   position: absolute;
   bottom: 80px;
-  left: 0;
+  right: 0;
+  left: auto;
   width: 380px;
   height: 520px;
   display: flex;
@@ -1289,7 +1422,8 @@ footer {
   transform: translateY(20px) scale(0.9);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   pointer-events: none;
-  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 20px;
 }
 
 .floating-chat-widget.expanded .chat-popup {
@@ -1500,6 +1634,7 @@ footer {
   cursor: pointer;
   padding: 5px;
   z-index: 1001;
+  flex-shrink: 0;
 }
 
 .mobile-menu-toggle .bar {
@@ -1510,10 +1645,20 @@ footer {
   border-radius: 2px;
 }
 
+/* Nav brand: keep logo + stats on same row */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+}
+
 .nav-stats-mobile {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .nav-coins {
@@ -1521,12 +1666,13 @@ footer {
   align-items: center;
   gap: 5px;
   background: rgba(255, 215, 0, 0.1);
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 15px;
   border: 1px solid rgba(255, 215, 0, 0.3);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: bold;
   color: gold;
+  white-space: nowrap;
 }
 
 @media (max-width: 992px) {
@@ -1682,23 +1828,32 @@ footer {
   }
 
   .chat-popup {
-    width: 100vw;
-    height: 100vh;
-    bottom: 0;
+    width: calc(100vw - 32px);
+    max-width: 380px;
+    height: 75vh;
+    bottom: 80px;
     right: 0;
-    border-radius: 0;
+    border-radius: 20px;
   }
   
   .floating-chat-widget {
     bottom: 20px;
-    right: 20px;
-    transform: scale(1.1);
+    right: 16px;
+    left: auto;
   }
 }
 
 /* Chart Response Classes */
 .demographics-card {
   padding: 2.5rem;
+}
+
+/* Fix Recharts ResponsiveContainer measuring -1 width on mobile:
+   Wrap in overflow-hidden so flex/grid gives a concrete pixel width */
+.chart-container-inner {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .chart-header-area {
@@ -1959,18 +2114,59 @@ footer {
 
 @media (max-width: 480px) {
   .quiz-question-text {
-    font-size: 1.5rem !important;
+    font-size: 1.4rem !important;
   }
   
   .option-btn-ww {
-    padding: 1rem !important;
-    font-size: 0.95rem !important;
+    padding: 0.9rem 1rem !important;
+    font-size: 0.9rem !important;
     border-radius: 12px !important;
   }
 
   .quiz-category-tab {
-    padding: 10px 15px !important;
-    font-size: 0.8rem !important;
+    padding: 9px 12px !important;
+    font-size: 0.78rem !important;
+    gap: 6px !important;
+  }
+
+  /* Quiz result screen: stack buttons vertically on mobile */
+  .quiz-result-actions {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  .quiz-result-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* SongQuiz: shrink the vinyl disc on small phones */
+  .music-disc {
+    width: 140px !important;
+    height: 140px !important;
+  }
+
+  /* WordSearch: reduce header size */
+  .ws-header h2 {
+    font-size: 2rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* MapLabeling: title */
+  .map-labeling-game h2 {
+    font-size: 1.8rem !important;
+  }
+
+  /* WordSearch: word list goes full width below grid */
+  .ws-game-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .ws-word-list-card {
+    position: static !important;
+    padding: 1.5rem !important;
+  }
+  .ws-grid-card {
+    max-width: 100% !important;
+    padding: 12px !important;
   }
 }
 

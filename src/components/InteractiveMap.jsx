@@ -144,20 +144,67 @@ const InteractiveMap = () => {
         if (data) {
           setActiveRegion(data);
           discoverRegion(id);
+          // On mobile: smooth-scroll to info panel after selecting a region
+          if (window.innerWidth < 1024) {
+            setTimeout(() => {
+              document.querySelector('.info-panel-wrapper')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+          }
         }
-      });
+      })
+      .on('touchstart', (event, d) => {
+        event.preventDefault(); // prevent 300ms delay & ghost click
+        const id = getRegionId(d.properties);
+        const data = regionsData.find(r => r.id === id);
+        if (data) {
+          setActiveRegion(data);
+          discoverRegion(id);
+          if (window.innerWidth < 1024) {
+            setTimeout(() => {
+              document.querySelector('.info-panel-wrapper')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+          }
+        }
+      }, { passive: false });
 
   }, [activeRegion, hoveredRegion, language, discoverRegion]);
+
+  const [isMapReady, setIsMapReady] = useState(false);
+  useEffect(() => {
+    // Mark map as ready after first D3 draw
+    const timer = setTimeout(() => setIsMapReady(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="map-section-wrapper">
       <div className="map-grid-container mobile-responsive-grid">
         {/* D3 Map Card */}
         <div className="map-svg-container">
+          {/* Skeleton loader – fades out once D3 renders */}
+          {!isMapReady && (
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '20px',
+              background: 'rgba(15, 23, 42, 0.6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexDirection: 'column', gap: '1rem', zIndex: 5
+            }}>
+              <div style={{
+                width: '80%', height: '60%',
+                background: 'linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 1.5s infinite',
+                borderRadius: '16px'
+              }} />
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                {t.loadingMap || 'Загрузка карты...'}
+              </span>
+            </div>
+          )}
           <svg
             ref={svgRef}
             className="interactive-svg"
-            style={{ width: '100%', height: 'auto', display: 'block' }}
+            style={{ width: '100%', height: 'auto', display: 'block', opacity: isMapReady ? 1 : 0, transition: 'opacity 0.4s ease' }}
           ></svg>
 
           <div style={{

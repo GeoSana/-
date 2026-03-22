@@ -96,38 +96,85 @@ const Quizzes = () => {
       selectedQuiz.type === 'map-labeling' ? selectedQuiz.mapLabelingData.pins.length :
       selectedQuiz.questions.length;
     const percentage = Math.round((score / (totalQuestions || 1)) * 100);
+    const diffMultiplier = selectedQuiz.difficulty === 3 ? 2.0 : selectedQuiz.difficulty === 2 ? 1.5 : 1.0;
+    const xpEarned = Math.round(percentage * diffMultiplier);
+    const medal = percentage >= 80 ? '👑' : percentage >= 50 ? '🥈' : '🥉';
+
+    const handleShare = async () => {
+      const quizName = selectedQuiz.title[language];
+      const shareText = language === 'kz'
+        ? `${medal} GeoSana-да "${quizName}" викторинасында ${score}/${totalQuestions} жауап бердім! ${xpEarned} XP алдым 🎉\ngeosana.kz`
+        : `${medal} Прошёл квиз "${quizName}" на GeoSana! Результат: ${score}/${totalQuestions}. Заработал ${xpEarned} XP 🎉\ngeosana.kz`;
+      if (navigator.share) {
+        try { await navigator.share({ text: shareText }); } catch (_) {}
+      } else {
+        try {
+          await navigator.clipboard.writeText(shareText);
+          alert(language === 'kz' ? 'Мәтін алмасу буферіне көшірілді!' : 'Текст скопирован в буфер обмена!');
+        } catch (_) {}
+      }
+    };
     
     return (
       <div className="wordwall-quiz-container animate-pop">
-        <div className="quiz-game-card glass-card" style={{ textAlign: 'center', padding: '4rem' }}>
-          <div style={{ fontSize: '6rem', marginBottom: '2rem', filter: 'drop-shadow(0 0 20px rgba(255,215,0,0.3))' }}>
-            {percentage >= 80 ? '👑' : percentage >= 50 ? '🥈' : '🥉'}
+        <div className="quiz-game-card glass-card" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+          <div style={{ fontSize: '5rem', marginBottom: '1.5rem', filter: 'drop-shadow(0 0 20px rgba(255,215,0,0.3))' }}>
+            {medal}
           </div>
-          <h2 className="font-serif" style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+          <h2 className="font-serif" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
             {percentage >= 80 ? (language === 'kz' ? 'ТАМАША!' : 'ВЕЛИКОЛЕПНО!') : t.quizCompleted}
           </h2>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.9rem' }}>
+            {selectedQuiz.title[language]}
+          </p>
           
+          {/* Score + XP block */}
           <div style={{ 
+            display: 'grid', gridTemplateColumns: '1fr 1px 1fr',
             background: 'var(--bg-dark)', 
-            borderRadius: 'var(--radius-xl)', 
-            padding: '2.5rem',
-            margin: '2.5rem 0',
-            border: '1px solid var(--border)'
+            borderRadius: '20px', 
+            padding: '1.5rem 2rem',
+            margin: '0 0 2rem',
+            border: '1px solid var(--border)',
+            gap: '1.5rem',
+            alignItems: 'center'
           }}>
-            <div style={{ fontSize: '4.5rem', fontWeight: '900', color: 'var(--primary)', letterSpacing: '-0.02em' }}>
-              {score} / {totalQuestions}
+            <div>
+              <div style={{ fontSize: '3.5rem', fontWeight: '900', color: 'var(--primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                {score}/{totalQuestions}
+              </div>
+              <div style={{ color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.75rem', marginTop: '0.5rem' }}>
+                {language === 'kz' ? 'ЖАУАПТАР' : 'ОТВЕТОВ'}
+              </div>
             </div>
-            <div style={{ color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-              {language === 'kz' ? 'ДҰРЫС ЖАУАПТАР' : 'ПРАВИЛЬНЫХ ОТВЕТОВ'}
+            <div style={{ width: '1px', height: '100%', background: 'var(--border)' }} />
+            <div>
+              <div style={{ 
+                fontSize: '2.5rem', fontWeight: '900', lineHeight: 1,
+                background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+              }}>
+                +{xpEarned}
+              </div>
+              <div style={{ color: 'var(--text-secondary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.75rem', marginTop: '0.5rem' }}>
+                XP {language === 'kz' ? 'АЛДЫҢЫЗ' : 'ПОЛУЧЕНО'}
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
-            <button className="btn btn-primary" style={{ padding: '1rem 3rem' }} onClick={() => startQuiz(selectedQuiz)}>
-              {language === 'kz' ? 'ҚАЙТАЛАУ' : 'ПЕРЕСДАТЬ'}
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }} className="quiz-result-actions">
+            <button className="btn btn-primary" style={{ padding: '1rem 2rem' }} onClick={() => startQuiz(selectedQuiz)}>
+              🔄 {language === 'kz' ? 'Қайталау' : 'Пересдать'}
             </button>
-            <button className="btn btn-secondary" style={{ padding: '1rem 3rem' }} onClick={backToSelection}>
+            <button className="btn btn-secondary" style={{ padding: '1rem 2rem' }} onClick={backToSelection}>
               {t.backToQuizzes}
+            </button>
+            <button
+              className="btn btn-secondary"
+              style={{ padding: '1rem 2rem', borderColor: 'rgba(14,165,233,0.3)' }}
+              onClick={handleShare}
+            >
+              📤 {language === 'kz' ? 'Бөлісу' : 'Поделиться'}
             </button>
           </div>
         </div>
