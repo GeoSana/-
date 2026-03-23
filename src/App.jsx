@@ -12,6 +12,20 @@ import { useGameState } from './context/GameStateContext';
 function App() {
   const [showAuth, setShowAuth] = useState(false);
 
+  const IS_MAINTENANCE_MODE = true;
+
+  if (IS_MAINTENANCE_MODE) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', fontFamily: 'sans-serif', backgroundColor: '#f9fafb', color: '#1f2937', textAlign: 'center', padding: '20px' }}>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: '#2563eb', fontWeight: 'bold' }}>Сайт временно недоступен 🚧</h1>
+        <p style={{ fontSize: '1.25rem', maxWidth: '600px', lineHeight: '1.6', color: '#4b5563' }}>
+          Мы проводим плановые технические работы, чтобы улучшить платформу GeoSana. 
+          Пожалуйста, зайдите к нам немного позже. Спасибо за понимание!
+        </p>
+      </div>
+    );
+  }
+
   // Determine basename dynamically to work both on root and subfolder (/-)
   const basename = window.location.pathname.startsWith('/-') ? '/-' : '';
 
