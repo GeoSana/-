@@ -12,7 +12,7 @@ import { useGameState } from './context/GameStateContext';
 function App() {
   const [showAuth, setShowAuth] = useState(false);
 
-  const IS_MAINTENANCE_MODE = true;
+  const IS_MAINTENANCE_MODE = false;
 
   if (IS_MAINTENANCE_MODE) {
     return (
