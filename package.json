@@ -1,7 +1,11 @@
 {
-  "name": "site",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "name": "geosana",
+  "homepage": "https://GeoSana.github.io/-/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GeoSana/-.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

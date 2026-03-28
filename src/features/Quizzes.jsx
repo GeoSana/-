@@ -1,9 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGameState } from '../context/GameStateContext';
-import quizzesData from '../data/quizzes.json';
-import SongQuiz from './SongQuiz';
+import rawQuizzesData from '../data/quizzes.json';
 import WordSearch from './WordSearch';
 import MapLabeling from './MapLabeling';
+import { geoQuestions } from '../data/questions_geo';
+import { politicalQuestions } from '../data/questions_political';
+import { economyQuestions } from '../data/questions_economy';
+import { cultureQuestions } from '../data/questions_culture';
+import { melodyQuestions } from '../data/questions_melody';
+
+const quizzesData = [
+  ...rawQuizzesData.filter(q => q.id !== 'kz-geo-general'),
+  {
+    id: "kz-geo",
+    category: "geo",
+    difficulty: 2,
+    title: { ru: "Природа и География", kz: "Табиғат және География" },
+    description: { ru: "Флора, фауна, горы и реки", kz: "Флора, фауна, таулар мен өзендер" },
+    iconName: "Mountain",
+    questions: geoQuestions
+  },
+  {
+    id: "kz-political",
+    category: "political",
+    difficulty: 2,
+    title: { ru: "Политико-административное", kz: "Саяси-әкімшілік" },
+    description: { ru: "Границы, регионы, города", kz: "Шекаралар, облыстар, қалалар" },
+    iconName: "Landmark",
+    questions: politicalQuestions
+  },
+  {
+    id: "kz-economy",
+    category: "economy",
+    difficulty: 2,
+    title: { ru: "Экономика", kz: "Экономикалық" },
+    description: { ru: "Промышленность и инфраструктура", kz: "Өнеркәсіп және инфрақұрылым" },
+    iconName: "Cpu",
+    questions: economyQuestions
+  },
+  {
+    id: "kz-culture",
+    category: "culture",
+    difficulty: 2,
+    title: { ru: "Культура и Общество", kz: "Мәдени және Қоғам" },
+    description: { ru: "Традиции, религия, этносы", kz: "Дәстүрлер, дін, этностар" },
+    iconName: "BookOpen",
+    questions: cultureQuestions
+  },
+  {
+    id: "kz-melody",
+    category: "games",
+    difficulty: 1,
+    title: { ru: "Угадай мелодию (Текст)", kz: "Әуенді тап (Мәтіндік)" },
+    description: { ru: "Популярные песни и строки", kz: "Танымал әндер мен өлең жолдары" },
+    iconName: "Music",
+    questions: melodyQuestions
+  }
+];
 
 const Quizzes = () => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -24,7 +77,16 @@ const Quizzes = () => {
   };
 
   const startQuiz = (quiz) => {
-    setSelectedQuiz(quiz);
+    let quizToStart = quiz;
+    // Shuffle and pick 10 random questions for standard quizzes
+    if (quiz.questions && quiz.questions.length > 0 && !['wordsearch', 'map-labeling', 'song-quiz'].includes(quiz.type)) {
+      quizToStart = {
+        ...quiz,
+        questions: [...quiz.questions].sort(() => 0.5 - Math.random()).slice(0, 10)
+      };
+    }
+
+    setSelectedQuiz(quizToStart);
     setCurrentIndex(0);
     setScore(0);
     setShowResult(false);
@@ -86,9 +148,28 @@ const Quizzes = () => {
     return icons[iconName] || '📝';
   };
 
-  const [activeCategory, setActiveCategory] = useState('kz');
+  const [activeCategory, setActiveCategory] = useState('geo');
+  const [customQuizzes, setCustomQuizzes] = useState([]);
 
-  const filteredQuizzes = quizzesData.filter(q => q.category === activeCategory);
+  useEffect(() => {
+    const saved = localStorage.getItem('custom_quizzes');
+    if (saved) {
+      try {
+        setCustomQuizzes(JSON.parse(saved));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
+  const allQuizzes = [...quizzesData, ...customQuizzes];
+
+  const filteredQuizzes = allQuizzes.filter(q => {
+    if (activeCategory === 'games') {
+      return ['kz', 'world', 'games'].includes(q.category); // Keep legacy kz/world in games, plus new 'games'
+    }
+    return q.category === activeCategory;
+  });
 
   if (showResult) {
     const totalQuestions = 
@@ -103,8 +184,8 @@ const Quizzes = () => {
     const handleShare = async () => {
       const quizName = selectedQuiz.title[language];
       const shareText = language === 'kz'
-        ? `${medal} GeoSana-да "${quizName}" викторинасында ${score}/${totalQuestions} жауап бердім! ${xpEarned} XP алдым 🎉\ngeosana.kz`
-        : `${medal} Прошёл квиз "${quizName}" на GeoSana! Результат: ${score}/${totalQuestions}. Заработал ${xpEarned} XP 🎉\ngeosana.kz`;
+        ? `${medal} GeoSana-да "${quizName}" викторинасында ${score}/${totalQuestions} жауап бердім! ${xpEarned} XP алдым 🎉\nhttps://GeoSana.github.io/-/`
+        : `${medal} Прошёл квиз "${quizName}" на GeoSana! Результат: ${score}/${totalQuestions}. Заработал ${xpEarned} XP 🎉\nhttps://GeoSana.github.io/-/`;
       if (navigator.share) {
         try { await navigator.share({ text: shareText }); } catch (_) {}
       } else {
@@ -218,23 +299,7 @@ const Quizzes = () => {
     );
   }
 
-  if (selectedQuiz?.type === 'song-quiz') {
-    return (
-      <div className="wordwall-quiz-container animate-fade-in">
-        <div style={{ marginBottom: '2rem' }}>
-          <button className="btn btn-secondary" onClick={backToSelection} style={{ padding: '0.8rem 1.5rem', borderRadius: 'var(--radius-lg)' }}>
-            ← {t.backToList}
-          </button>
-        </div>
-        <SongQuiz 
-            quiz={selectedQuiz} 
-            onComplete={(cScore) => finishQuiz(cScore)} 
-            language={language}
-            t={t}
-        />
-      </div>
-    );
-  }
+
 
   if (selectedQuiz) {
     const currentQ = selectedQuiz.questions[currentIndex];
@@ -245,13 +310,16 @@ const Quizzes = () => {
           <button className="btn btn-secondary" onClick={backToSelection} style={{ padding: '0.8rem 2rem', borderRadius: 'var(--radius-lg)' }}>
             ← {t.backToList}
           </button>
-          <div className="glass-card" style={{ 
-            padding: '0.6rem 2rem', 
-            fontWeight: '800',
-            color: 'var(--primary)',
-            fontSize: '1.1rem'
-          }}>
-            {currentIndex + 1} / {selectedQuiz.questions.length}
+          <div className="quiz-progress-wrapper glass-card">
+            <div className="quiz-progress-text">
+              {currentIndex + 1} / {selectedQuiz.questions.length}
+            </div>
+            <div className="quiz-progress-track">
+              <div 
+                className="quiz-progress-fill" 
+                style={{ width: `${((currentIndex + 1) / selectedQuiz.questions.length) * 100}%` }}
+              ></div>
+            </div>
           </div>
         </div>
 
@@ -332,23 +400,57 @@ const Quizzes = () => {
 
   return (
     <div className="wordwall-quiz-container">
-      <div className="quiz-category-tabs">
+      <div className="quiz-category-tabs" style={{ flexWrap: 'wrap', gap: '8px' }}>
         <button 
-          className={`quiz-category-tab ${activeCategory === 'kz' ? 'active' : ''}`}
-          onClick={() => setActiveCategory('kz')}
+          className={`quiz-category-tab ${activeCategory === 'geo' ? 'active' : ''}`}
+          onClick={() => setActiveCategory('geo')}
         >
-          <img src="https://purecatamphetamine.github.io/country-flag-icons/3x2/KZ.svg" alt="KZ" style={{ width: '22px', borderRadius: '3px' }} />
-          {language === 'ru' ? 'Казахстан' : 'Қазақстан'}
+          🏔️ {language === 'ru' ? 'География' : 'География'}
         </button>
         <button 
-          className={`quiz-category-tab ${activeCategory === 'world' ? 'active' : ''}`}
-          onClick={() => setActiveCategory('world')}
+          className={`quiz-category-tab ${activeCategory === 'political' ? 'active' : ''}`}
+          onClick={() => setActiveCategory('political')}
         >
-          🌍 {language === 'ru' ? 'Мир' : 'Әлем'}
+          🏛️ {language === 'ru' ? 'Политика' : 'Саясат'}
+        </button>
+        <button 
+          className={`quiz-category-tab ${activeCategory === 'economy' ? 'active' : ''}`}
+          onClick={() => setActiveCategory('economy')}
+        >
+          🏭 {language === 'ru' ? 'Экономика' : 'Экономика'}
+        </button>
+        <button 
+          className={`quiz-category-tab ${activeCategory === 'culture' ? 'active' : ''}`}
+          onClick={() => setActiveCategory('culture')}
+        >
+          📚 {language === 'ru' ? 'Культура' : 'Мәдениет'}
+        </button>
+        <button 
+          className={`quiz-category-tab ${activeCategory === 'games' ? 'active' : ''}`}
+          onClick={() => setActiveCategory('games')}
+        >
+          🎮 {language === 'ru' ? 'Мини-игры' : 'Шағын ойындар'}
+        </button>
+        <button 
+          className={`quiz-category-tab ${activeCategory === 'custom' ? 'active' : ''}`}
+          onClick={() => setActiveCategory('custom')}
+        >
+          👤 {language === 'ru' ? 'Мои тесты' : 'Менің тестерім'}
         </button>
       </div>
 
       <div className="quiz-selection-grid">
+        {filteredQuizzes.length === 0 && activeCategory === 'custom' && (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: '0.4' }}>📝</div>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'white' }}>
+              {language === 'kz' ? 'Әлі тест құрылған жоқ' : 'Вы еще не создали ни одного теста'}
+            </h3>
+            <p>
+              {language === 'kz' ? 'Жоғарыдағы мәзірден жаңа тест құрастырыңыз' : 'Создайте новый тест через меню сверху'}
+            </p>
+          </div>
+        )}
         {filteredQuizzes.map((quiz, qIdx) => (
           <div 
             key={quiz.id} 

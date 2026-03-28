@@ -15,15 +15,7 @@ export const GameStateProvider = ({ children }) => {
     return localStorage.getItem('qazaqgeo_lang') || 'ru';
   });
 
-  const [coins, setCoins] = useState(() => {
-    const saved = localStorage.getItem('qazaqgeo_coins');
-    return saved ? parseInt(saved, 10) : 0;
-  });
 
-  const [purchasedItems, setPurchasedItems] = useState(() => {
-    const saved = localStorage.getItem('qazaqgeo_items');
-    return saved ? JSON.parse(saved) : [];
-  });
 
   const [xp, setXp] = useState(() => {
     const saved = localStorage.getItem('qazaqgeo_xp');
@@ -125,8 +117,6 @@ export const GameStateProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('qazaqgeo_xp', xp);
-    localStorage.setItem('qazaqgeo_coins', coins);
-    localStorage.setItem('qazaqgeo_items', JSON.stringify(purchasedItems));
     localStorage.setItem('qazaqgeo_regions', JSON.stringify(discoveredRegions));
     localStorage.setItem('qazaqgeo_achievements', JSON.stringify(achievements));
     localStorage.setItem('qazaqgeo_quizzes', quizCount);
@@ -136,7 +126,7 @@ export const GameStateProvider = ({ children }) => {
     localStorage.setItem('qazaqgeo_quests', JSON.stringify(quests));
     if (user) localStorage.setItem('qazaqgeo_user', JSON.stringify(user));
     else localStorage.removeItem('qazaqgeo_user');
-  }, [xp, coins, purchasedItems, discoveredRegions, achievements, quizCount, isLoggedIn, user, language, streak, quests]);
+  }, [xp, discoveredRegions, achievements, quizCount, isLoggedIn, user, language, streak, quests]);
 
   // Streak Logic
   useEffect(() => {
@@ -199,12 +189,6 @@ export const GameStateProvider = ({ children }) => {
 
     const newXp = xp + finalAmount;
     setXp(newXp);
-
-    // Award GeoCoins (10% of XP)
-    const coinReward = Math.floor(finalAmount * 0.1);
-    if (coinReward > 0) {
-      setCoins(prev => prev + coinReward);
-    }
     
     if (isQuiz) {
       const newQuizCount = quizCount + 1;
@@ -309,29 +293,13 @@ export const GameStateProvider = ({ children }) => {
     }
   };
 
-  const buyItem = (item) => {
-    if (coins >= item.price && !purchasedItems.includes(item.id)) {
-      setCoins(prev => prev - item.price);
-      setPurchasedItems(prev => [...prev, item.id]);
-      
-      setLastUnlocked({
-        id: `buy_${item.id}`,
-        title: language === 'kz' ? 'Сатып алу сәтті өтті!' : 'Покупка совершена!',
-        description: language === 'kz' ? `${item.title.kz} енді сіздікі!` : `${item.title.ru} теперь у вас!`,
-        type: 'achievement'
-      });
-      return true;
-    }
-    return false;
-  };
+
 
   const clearAchievementNotification = () => setLastUnlocked(null);
 
   return (
     <GameStateContext.Provider value={{
       xp,
-      coins,
-      purchasedItems,
       level,
       levelTitle,
       progressInLevel,

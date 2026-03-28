@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { useGameState } from '../context/GameStateContext';
-import Shop from '../features/Shop';
-
 const PersonalCabinet = () => {
-  const { xp, coins, level, levelTitle, progressInLevel, xpForNextLevel, discoveredRegions, achievements, user, isLoggedIn, t, language, streak, quests } = useGameState();
-  const [showShop, setShowShop] = useState(false);
+  const { xp, level, levelTitle, progressInLevel, xpForNextLevel, discoveredRegions, achievements, user, isLoggedIn, t, language, streak, quests } = useGameState();
 
   if (!isLoggedIn) return null;
 
@@ -13,7 +10,7 @@ const PersonalCabinet = () => {
       <div className="container">
         <div className="cabinet-header">
           <div className="cabinet-title-area">
-            <h2 className="cabinet-title">{showShop ? t.shopTitle : t?.cabinet}</h2>
+            <h2 className="cabinet-title">{t?.cabinet}</h2>
             <p className="cabinet-subtitle">
               {language === 'ru' ? 'Добро пожаловать обратно, ' : 'Қош келдіңіз, '}
               <span className="user-name-highlight">{user?.name}</span>!
@@ -21,18 +18,6 @@ const PersonalCabinet = () => {
           </div>
           
           <div className="cabinet-actions">
-            <button 
-              onClick={() => setShowShop(!showShop)}
-              className={`shop-toggle-btn glass-card ${showShop ? 'active' : ''}`}
-            >
-              <div className="action-icon">{showShop ? '👤' : '🏪'}</div>
-              <div className="action-text">
-                <div className="action-title">
-                  {showShop ? (language === 'kz' ? 'Профиль' : 'Профиль') : t.shopTitle}
-                </div>
-                <div className="action-details">{t.shopCoins}: {coins}</div>
-              </div>
-            </button>
 
             <div className="streak-badge glass-card">
               <div className="action-icon">🔥</div>
@@ -44,12 +29,9 @@ const PersonalCabinet = () => {
           </div>
         </div>
 
-        {showShop ? (
-          <Shop />
-        ) : (
-          <>
+
             <div className="cabinet-grid">
-              <div className="glass-card rank-card">
+              <div className="glass-card rank-card animate-up" style={{ animationDelay: '0.1s' }}>
                 <div className="rank-bg-icon">⭐</div>
                 <div className="card-label">{t.rank}</div>
                 <div className="rank-number">{level}</div>
@@ -66,18 +48,18 @@ const PersonalCabinet = () => {
                 </div>
               </div>
               
-              <div className="stats-mini-grid">
-                  <div className="glass-card stat-mini-card">
+              <div className="stats-mini-grid animate-up" style={{ animationDelay: '0.2s' }}>
+                  <div className="glass-card stat-mini-card stat-hover">
                     <div className="mini-icon">🗺️</div>
                     <div className="mini-value">{discoveredRegions.length}</div>
                     <div className="mini-label">{t.allRegions}</div>
                   </div>
-                  <div className="glass-card stat-mini-card">
-                    <div className="mini-icon">💰</div>
-                    <div className="mini-value coin-text">{coins}</div>
-                    <div className="mini-label">{t.shopCoins}</div>
+                  <div className="glass-card stat-mini-card stat-hover">
+                    <div className="mini-icon">🏆</div>
+                    <div className="mini-value">{achievements.length}</div>
+                    <div className="mini-label">{t.achievements}</div>
                   </div>
-                  <div className="glass-card records-card">
+                  <div className="glass-card records-card stat-hover">
                     <div className="mini-label">{t.records}</div>
                     <div className="records-split">
                        <div className="record-item">
@@ -93,7 +75,7 @@ const PersonalCabinet = () => {
                   </div>
               </div>
 
-              <div className="glass-card quests-card">
+              <div className="glass-card quests-card animate-up" style={{ animationDelay: '0.3s' }}>
                  <h3 className="card-header-title">
                     <span>🎯</span> {t?.dailyQuests}
                  </h3>
@@ -115,7 +97,7 @@ const PersonalCabinet = () => {
                  </div>
               </div>
 
-              <div className="glass-card leaderboard-card">
+              <div className="glass-card leaderboard-card animate-up" style={{ animationDelay: '0.4s' }}>
                  <h3 className="card-header-title">
                     <span>📊</span> {t?.leaderboard}
                  </h3>
@@ -140,8 +122,8 @@ const PersonalCabinet = () => {
               <div className="cabinet-achievements" style={{ marginTop: '4rem' }}>
                 <h3 className="font-serif" style={{ fontSize: '2rem', marginBottom: '2.5rem' }}>{t.unlocked} {t.achievements}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
-                  {achievements.map((achievement) => (
-                    <div key={achievement.id} className="achievement-card glass-card" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', padding: '1.5rem' }}>
+                  {achievements.map((achievement, i) => (
+                    <div key={achievement.id} className="achievement-card glass-card animate-up" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', padding: '1.5rem', animationDelay: `${0.5 + (i * 0.1)}s` }}>
                       <div style={{ fontSize: '2.5rem' }}>
                          {achievement.id === 'first_quiz' ? '🔰' : 
                           achievement.id === 'perfect_score' ? '🎓' : 
@@ -163,8 +145,6 @@ const PersonalCabinet = () => {
                 </div>
               </div>
             )}
-          </>
-        )}
       </div>
     </section>
   );

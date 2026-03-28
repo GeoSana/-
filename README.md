@@ -1,16 +1,25 @@
-# React + Vite
+# GeoSana — Инновационная платформа для изучения Казахстана
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+GeoSana — это образовательная веб-платформа, предназначенная для углубленного изучения географии, политики, экономики и культуры Казахстана через интерактивные квизы и мини-игры.
 
-Currently, two official plugins are available:
+## 🚀 Ссылки
+- **GitHub Repository**: [https://github.com/GeoSana/-](https://github.com/GeoSana/-)
+- **Live Demo (GitHub Pages)**: [https://GeoSana.github.io/-/](https://GeoSana.github.io/-/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Особенности
+- **Интерактивная карта**: Изучайте регионы Казахстана с мгновенными подсказками.
+- **База вопросов (300+)**: Четыре категории знаний (География, Политика, Экономика, Культура).
+- **Конструктор тестов**: Учителя могут создавать свои собственные тесты.
+- **AI-тьютор (QazaqBot)**: Умный помощник, знающий всё об Астане и Байконуре.
+- **Система прогрессии**: Зарабатывайте XP, повышайте уровень и получайте новые титулы.
+- **Мини-игры**: "Угадай мелодию" (текст) и другие активности.
 
-## React Compiler
+## 🛠 Технологии
+- **Frontend**: React + Vite
+- **Стили**: Vanilla CSS (Glassmorphism UI)
+- **Карты**: D3.js + TopoJSON
+- **Иконки**: SVGs / Lucide-style
+- **Развертывание**: GitHub Pages
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+&copy; 2026 GeoSana. Совершенство в образовании.

@@ -4,7 +4,7 @@ import { useGameState } from '../context/GameStateContext';
 
 const Navbar = ({ onAuthClick, isScrolled }) => {
   const location = useLocation();
-  const { level, levelTitle, xp, coins, xpForNextLevel, progressInLevel, isLoggedIn, user, logout, language, setLanguage, t } = useGameState();
+  const { level, levelTitle, xp, xpForNextLevel, progressInLevel, isLoggedIn, user, logout, language, setLanguage, t } = useGameState();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Close menu on route change
@@ -37,13 +37,6 @@ const Navbar = ({ onAuthClick, isScrolled }) => {
                 <div className="xp-bar" style={{ width: `${progressInLevel}%` }}></div>
               </div>
             </div>
-
-            {isLoggedIn && (
-              <div className="nav-coins">
-                <span>💰</span>
-                <span>{coins}</span>
-              </div>
-            )}
           </div>
         </div>
 
@@ -70,6 +63,11 @@ const Navbar = ({ onAuthClick, isScrolled }) => {
         <div className={`nav-links ${isMenuOpen ? 'show' : ''}`}>
           <Link to="/" className={location.pathname === '/' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>{t.map}</Link>
           <Link to="/quizzes" className={location.pathname === '/quizzes' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>{t.quizzes}</Link>
+          {isLoggedIn && (
+            <Link to="/create" className={location.pathname === '/create' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>
+              {language === 'kz' ? 'Тест құру' : 'Создать тест'}
+            </Link>
+          )}
 
           <div className="lang-toggle-wrapper">
             <div className="lang-toggle">

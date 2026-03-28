@@ -7,6 +7,7 @@ import geoData from '../data/kazakhstan-regions.json';
 const InteractiveMap = () => {
   const [activeRegion, setActiveRegion] = useState(null);
   const [hoveredRegion, setHoveredRegion] = useState(null);
+  const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, name: '' });
   const { discoverRegion, t, language } = useGameState();
   const svgRef = useRef(null);
 
@@ -133,9 +134,22 @@ const InteractiveMap = () => {
           setHoveredRegion(getRegionId(d.properties));
         }
       })
+      .on('mousemove', (event, d) => {
+        if (window.matchMedia('(hover: hover)').matches) {
+          const id = getRegionId(d.properties);
+          const rData = regionsData.find(r => r.id === id);
+          setTooltip({
+            show: true,
+            x: event.clientX,
+            y: event.clientY,
+            name: rData ? rData.name[language] : (d.properties.NAME_1 || '')
+          });
+        }
+      })
       .on('mouseleave', () => {
         if (window.matchMedia('(hover: hover)').matches) {
           setHoveredRegion(null);
+          setTooltip({ show: false, x: 0, y: 0, name: '' });
         }
       })
       .on('click', (event, d) => {
@@ -268,6 +282,28 @@ const InteractiveMap = () => {
           )}
         </div>
       </div>
+
+      {tooltip.show && (
+        <div style={{
+          position: 'fixed',
+          top: tooltip.y - 45,
+          left: tooltip.x + 15,
+          background: 'rgba(15, 23, 42, 0.9)',
+          backdropFilter: 'blur(10px)',
+          color: 'white',
+          padding: '8px 14px',
+          borderRadius: '10px',
+          fontSize: '0.9rem',
+          fontWeight: '700',
+          pointerEvents: 'none',
+          zIndex: 1000,
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
+          whiteSpace: 'nowrap'
+        }}>
+          {tooltip.name}
+        </div>
+      )}
 
       <style>{`
         .map-section-wrapper {

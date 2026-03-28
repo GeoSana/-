@@ -1430,91 +1430,6 @@
     ]
   },
   {
-    "id": "world-songs",
-    "category": "world",
-    "type": "song-quiz",
-    "difficulty": 2,
-    "title": {
-      "ru": "Мелодии мира",
-      "kz": "Әлем әуендері"
-    },
-    "description": {
-      "ru": "Угадайте страну по песне",
-      "kz": "Ән арқылы елді табыңыз"
-    },
-    "iconName": "Music",
-    "questions": [
-      {
-        "id": 1,
-        "audioUrl": "https://upload.wikimedia.org/wikipedia/ru/0/08/Dombrayesterday.ogg",
-        "question": {
-          "ru": "Какой инструмент исполняет эту мелодию?",
-          "kz": "Бұл әуенді қай аспап орындап тұр?"
-        },
-        "options": {
-          "ru": ["Гитара", "Домбра", "Балалайка", "Укулеле"],
-          "kz": ["Гитара", "Домбыра", "Балалайка", "Укулеле"]
-        },
-        "correctAnswer": 1,
-        "explanation": {
-          "ru": "Это знаменитая песня, исполненная на казахской домбре.",
-          "kz": "Бұл қазақтың домбырасында орындалған танымал ән."
-        }
-      },
-      {
-        "id": 2,
-        "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/23/Maple_Leaf_Rag_-_played_by_Scott_Joplin_1916_sample.ogg",
-        "question": {
-          "ru": "В какой стране зародился этот музыкальный стиль (рэгтайм/джаз)?",
-          "kz": "Бұл музыкалық стиль (рэгтайм/джаз) қай елде пайда болды?"
-        },
-        "options": {
-          "ru": ["США", "Великобритания", "Германия", "Франция"],
-          "kz": ["АҚШ", "Ұлыбритания", "Германия", "Франция"]
-        },
-        "correctAnswer": 0,
-        "explanation": {
-          "ru": "Рэгтайм и джаз — это уникальные музыкальные стили, зародившиеся в США.",
-          "kz": "Рэгтайм мен джаз — АҚШ-та пайда болған бірегей музыкалық стильдер."
-        }
-      },
-      {
-        "id": 3,
-        "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/2/22/Joinville-musette_%281935%2C_Gramophone_K_7624%29.ogg",
-        "question": {
-          "ru": "Для какой страны характерно такое звучание аккордеона (мюзет)?",
-          "kz": "Аккордеонның мұндай дыбысталуы (мюзет) қай елге тән?"
-        },
-        "options": {
-          "ru": ["Испания", "Франция", "Ресей", "Греция"],
-          "kz": ["Испания", "Франция", "Ресей", "Греция"]
-        },
-        "correctAnswer": 1,
-        "explanation": {
-          "ru": "Стиль мюзет неразрывно связан с парижской культурой и французским аккордеоном.",
-          "kz": "Мюзет стилі Париж мәдениетімен және француз аккордеонымен тығыз байланысты."
-        }
-      },
-      {
-        "id": 4,
-        "audioUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4e/La_Donna_E_Mobile_Rigoletto.ogg",
-        "question": {
-          "ru": "На каком языке исполняется эта классическая опера?",
-          "kz": "Бұл классикалық опера қай тілде орындалады?"
-        },
-        "options": {
-          "ru": ["Французский", "Итальянский", "Немецкий", "Латынь"],
-          "kz": ["Француз", "Итальян", "Неміс", "Латын"]
-        },
-        "correctAnswer": 1,
-        "explanation": {
-          "ru": "Это знаменитая ария 'La donna è mobile' из оперы Верди на итальянском языке.",
-          "kz": "Бұл Вердидің итальян тіліндегі операсынан алынған 'La donna è mobile' ариясы."
-        }
-      }
-    ]
-  },
-  {
     "id": "kz-wordsearch",
     "category": "kz",
     "type": "wordsearch",
@@ -1950,7 +1865,7 @@
       "kz": "Елдерді орналастырыңыз"
     },
     "iconName": "Globe",
-      "mapLabelingData": {
+    "mapLabelingData": {
       "mapImage": "https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg",
       "pins": [
         {
