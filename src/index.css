@@ -1244,7 +1244,7 @@ footer {
   }
 
   .hero {
-    padding: 120px 0 60px;
+    padding: 150px 0 60px;
   }
 
   .hero h1 {
@@ -1992,6 +1992,7 @@ footer {
   display: flex !important;
   align-items: center !important;
   justify-content: center;
+  flex-shrink: 0 !important;
 }
 
 .lang-toggle {
@@ -2086,6 +2087,31 @@ footer {
 
 /* ===================== QUIZ MOBILE REFINEMENTS ===================== */
 @media (max-width: 768px) {
+  .cabinet-section {
+    padding-top: 150px !important;
+  }
+  .qb-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .qb-header h2 {
+    font-size: 2rem !important;
+  }
+  .qb-tabs {
+    flex-direction: column;
+  }
+  .qb-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .qb-option-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .qb-option-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  
   .quiz-game-card {
     padding: 2rem 1.5rem !important;
   }
@@ -2168,6 +2194,51 @@ footer {
     max-width: 100% !important;
     padding: 12px !important;
   }
+}
+
+/* ===================== QUIZ BUILDER ===================== */
+.qb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.qb-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.qb-tabs button {
+  padding: 0.5rem 1rem !important;
+  font-size: 1rem !important;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+.qb-tabs button:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+.qb-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+.qb-option-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.qb-option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  flex: 1;
 }
 
 /* ===================== CABINET SECTION ===================== */

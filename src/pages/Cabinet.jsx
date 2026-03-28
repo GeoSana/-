@@ -18,9 +18,9 @@ const Cabinet = () => {
   }
 
   return (
-    <div style={{ paddingTop: '100px' }}>
+    <>
       <PersonalCabinet />
-    </div>
+    </>
   );
 };
 

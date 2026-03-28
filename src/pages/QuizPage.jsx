@@ -6,7 +6,7 @@ const QuizPage = () => {
   const { t } = useGameState();
 
   return (
-    <section id="quizzes" style={{ paddingTop: '120px', minHeight: '80vh' }}>
+    <section id="quizzes" className="cabinet-section" style={{ minHeight: '80vh' }}>
       <div className="container">
         <div className="section-header">
           <h2>{t.testKnowledge}</h2>
