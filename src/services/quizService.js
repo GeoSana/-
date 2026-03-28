@@ -35,7 +35,17 @@ export const saveCommunityQuiz = async (quiz, authorName = 'Аноним') => {
 export const loadCommunityQuizzes = async () => {
   try {
     const q = query(collection(db, COLLECTION), orderBy('createdAt', 'desc'));
-    const snapshot = await getDocs(q);
+    
+    // Предотвращение бесконечной загрузки (например, если Firestore заблокирован или нет сети)
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Время ожидания ответа от сервера истекло')), 8000)
+    );
+    
+    const snapshot = await Promise.race([
+      getDocs(q),
+      timeoutPromise
+    ]);
+
     return snapshot.docs.map(doc => ({
       ...doc.data(),
       firestoreId: doc.id,

@@ -74,14 +74,16 @@ const Navbar = ({ onAuthClick, isScrolled }) => {
               <button 
                 onClick={() => { setLanguage('ru'); setIsMenuOpen(false); }} 
                 className={language === 'ru' ? 'active' : ''}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                RU
+                <span>🇷🇺</span> RU
               </button>
               <button 
                 onClick={() => { setLanguage('kz'); setIsMenuOpen(false); }} 
                 className={language === 'kz' ? 'active' : ''}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                KZ
+                <span>🇰🇿</span> KZ
               </button>
             </div>
           </div>
