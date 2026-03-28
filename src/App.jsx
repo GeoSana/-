@@ -8,7 +8,6 @@ import Cabinet from './pages/Cabinet';
 import QuizPage from './pages/QuizPage';
 import QuizBuilder from './pages/QuizBuilder';
 import Auth from './components/Auth';
-import { useGameState } from './context/GameStateContext';
 
 function App() {
   const [showAuth, setShowAuth] = useState(false);

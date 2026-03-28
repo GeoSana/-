@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { useGameState } from '../context/GameStateContext';
 
 const MainLayout = ({ children, onAuthClick }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { language } = useGameState();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,32 +31,34 @@ const MainLayout = ({ children, onAuthClick }) => {
                 Geo<span>Sana</span>
               </div>
               <p style={{ color: 'var(--text-secondary)', maxWidth: '300px' }}>
-                Первая инновационная платформа для глубокого изучения истории и географии Казахстана через интерактивный опыт.
+                {language === 'kz'
+                  ? 'Қазақстанның тарихы мен географиясын интерактивті тәсілмен тереңінен зерттеуге арналған алғашқы инновациялық платформа.'
+                  : 'Первая инновационная платформа для глубокого изучения истории и географии Казахстана через интерактивный опыт.'}
               </p>
             </div>
             
             <div className="footer-links">
-              <h4>Навигация</h4>
-              <Link to="/">Карта</Link>
-              <Link to="/quizzes">Квизы</Link>
+              <h4>{language === 'kz' ? 'Навигация' : 'Навигация'}</h4>
+              <Link to="/">{language === 'kz' ? 'Карта' : 'Карта'}</Link>
+              <Link to="/quizzes">{language === 'kz' ? 'Викториналар' : 'Квизы'}</Link>
             </div>
             
             <div className="footer-links">
-              <h4>Поддержка</h4>
-              <Link to="#">Документация </Link>
-              <Link to="#">Контакты </Link>
-              <Link to="#">О проекте </Link>
+              <h4>{language === 'kz' ? 'Қолдау' : 'Поддержка'}</h4>
+              <Link to="#">{language === 'kz' ? 'Құжаттама' : 'Документация'}</Link>
+              <Link to="#">{language === 'kz' ? 'Байланыс' : 'Контакты'}</Link>
+              <Link to="#">{language === 'kz' ? 'Жоба туралы' : 'О проекте'}</Link>
             </div>
             
             <div className="footer-links">
-              <h4>Правовая информация</h4>
-              <a href="#">Конфиденциальность</a>
-              <a href="#">Условия использования</a>
+              <h4>{language === 'kz' ? 'Құқықтық ақпарат' : 'Правовая информация'}</h4>
+              <a href="#">{language === 'kz' ? 'Құпиялылық' : 'Конфиденциальность'}</a>
+              <a href="#">{language === 'kz' ? 'Пайдалану шарттары' : 'Условия использования'}</a>
             </div>
           </div>
           
           <div className="footer-bottom">
-            <p>&copy; {new Date().getFullYear()} GeoSana. Совершенство в образовании.</p>
+            <p>&copy; {new Date().getFullYear()} GeoSana. {language === 'kz' ? 'Білімдегі жетістік.' : 'Совершенство в образовании.'}</p>
             <div className="social-links">
               {/* Social icons could go here */}
             </div>

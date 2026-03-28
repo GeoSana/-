@@ -8,6 +8,7 @@ const Auth = ({ onSuccess }) => {
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -101,6 +102,8 @@ const Auth = ({ onSuccess }) => {
               placeholder="••••••••••••" 
               className="chat-input"
               style={{ width: '100%', padding: '0.85rem' }}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>

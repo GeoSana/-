@@ -8,6 +8,7 @@ import { politicalQuestions } from '../data/questions_political';
 import { economyQuestions } from '../data/questions_economy';
 import { cultureQuestions } from '../data/questions_culture';
 import { melodyQuestions } from '../data/questions_melody';
+import { loadCommunityQuizzes } from '../services/quizService';
 
 const quizzesData = [
   ...rawQuizzesData.filter(q => q.id !== 'kz-geo-general'),
@@ -150,6 +151,8 @@ const Quizzes = () => {
 
   const [activeCategory, setActiveCategory] = useState('geo');
   const [customQuizzes, setCustomQuizzes] = useState([]);
+  const [communityQuizzes, setCommunityQuizzes] = useState([]);
+  const [communityLoading, setCommunityLoading] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('custom_quizzes');
@@ -162,14 +165,27 @@ const Quizzes = () => {
     }
   }, []);
 
+  // Load community quizzes from Firestore when the tab is opened
+  useEffect(() => {
+    if (activeCategory === 'community') {
+      setCommunityLoading(true);
+      loadCommunityQuizzes()
+        .then(quizzes => setCommunityQuizzes(quizzes))
+        .finally(() => setCommunityLoading(false));
+    }
+  }, [activeCategory]);
+
   const allQuizzes = [...quizzesData, ...customQuizzes];
 
   const filteredQuizzes = allQuizzes.filter(q => {
+    if (activeCategory === 'community') return false; // handled separately
     if (activeCategory === 'games') {
-      return ['kz', 'world', 'games'].includes(q.category); // Keep legacy kz/world in games, plus new 'games'
+      return ['kz', 'world', 'games'].includes(q.category);
     }
     return q.category === activeCategory;
   });
+
+  const displayQuizzes = activeCategory === 'community' ? communityQuizzes : filteredQuizzes;
 
   if (showResult) {
     const totalQuestions = 
@@ -405,7 +421,7 @@ const Quizzes = () => {
           className={`quiz-category-tab ${activeCategory === 'geo' ? 'active' : ''}`}
           onClick={() => setActiveCategory('geo')}
         >
-          🏔️ {language === 'ru' ? 'География' : 'География'}
+          🏔️ {language === 'ru' ? 'География' : 'Табиғат'}
         </button>
         <button 
           className={`quiz-category-tab ${activeCategory === 'political' ? 'active' : ''}`}
@@ -437,9 +453,33 @@ const Quizzes = () => {
         >
           👤 {language === 'ru' ? 'Мои тесты' : 'Менің тестерім'}
         </button>
+        <button 
+          className={`quiz-category-tab ${activeCategory === 'community' ? 'active' : ''}`}
+          onClick={() => setActiveCategory('community')}
+        >
+          🌍 {language === 'ru' ? 'Сообщество' : 'Қауымдастық'}
+        </button>
       </div>
 
       <div className="quiz-selection-grid">
+        {/* Community tab: loading spinner */}
+        {activeCategory === 'community' && communityLoading && (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '1rem', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</div>
+            <p>{language === 'kz' ? 'Тестілер жүктелуде...' : 'Загрузка тестов...'}</p>
+          </div>
+        )}
+        {/* Community tab: empty state */}
+        {activeCategory === 'community' && !communityLoading && communityQuizzes.length === 0 && (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: '0.4' }}>🌍</div>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'white' }}>
+              {language === 'kz' ? 'Әлі жарияланған тест жоқ' : 'Пока никто не опубликовал тест'}
+            </h3>
+            <p>{language === 'kz' ? 'Бірінші жариялаңыз!' : 'Будьте первым!'}</p>
+          </div>
+        )}
+        {/* My quizzes: empty state */}
         {filteredQuizzes.length === 0 && activeCategory === 'custom' && (
           <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: '0.4' }}>📝</div>
@@ -451,7 +491,7 @@ const Quizzes = () => {
             </p>
           </div>
         )}
-        {filteredQuizzes.map((quiz, qIdx) => (
+        {displayQuizzes.map((quiz, qIdx) => (
           <div 
             key={quiz.id} 
             className="quiz-selection-tile animate-pop" 

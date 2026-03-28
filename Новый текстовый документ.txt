@@ -1,3 +1,0 @@
-git add .
-git commit -m "GeoSana: Final overhaul and 302 questions"
-git push
