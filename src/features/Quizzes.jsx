@@ -6,12 +6,9 @@ import MapLabeling from './MapLabeling';
 import { geoQuestions } from '../data/questions_geo';
 import { politicalQuestions } from '../data/questions_political';
 import { economyQuestions } from '../data/questions_economy';
-import { cultureQuestions } from '../data/questions_culture';
-import { melodyQuestions } from '../data/questions_melody';
-import { loadCommunityQuizzes } from '../services/quizService';
 
 const quizzesData = [
-  ...rawQuizzesData.filter(q => q.id !== 'kz-geo-general'),
+  ...rawQuizzesData.filter(q => q.id !== 'kz-geo-general' && q.id !== 'kz-cuisine'),
   {
     id: "kz-geo",
     category: "geo",
@@ -38,24 +35,6 @@ const quizzesData = [
     description: { ru: "Промышленность и инфраструктура", kz: "Өнеркәсіп және инфрақұрылым" },
     iconName: "Cpu",
     questions: economyQuestions
-  },
-  {
-    id: "kz-culture",
-    category: "culture",
-    difficulty: 2,
-    title: { ru: "Культура и Общество", kz: "Мәдени және Қоғам" },
-    description: { ru: "Традиции, религия, этносы", kz: "Дәстүрлер, дін, этностар" },
-    iconName: "BookOpen",
-    questions: cultureQuestions
-  },
-  {
-    id: "kz-melody",
-    category: "games",
-    difficulty: 1,
-    title: { ru: "Угадай мелодию (Текст)", kz: "Әуенді тап (Мәтіндік)" },
-    description: { ru: "Популярные песни и строки", kz: "Танымал әндер мен өлең жолдары" },
-    iconName: "Music",
-    questions: melodyQuestions
   }
 ];
 
@@ -151,8 +130,6 @@ const Quizzes = () => {
 
   const [activeCategory, setActiveCategory] = useState('geo');
   const [customQuizzes, setCustomQuizzes] = useState([]);
-  const [communityQuizzes, setCommunityQuizzes] = useState([]);
-  const [communityLoading, setCommunityLoading] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('custom_quizzes');
@@ -165,27 +142,16 @@ const Quizzes = () => {
     }
   }, []);
 
-  // Load community quizzes from Firestore when the tab is opened
-  useEffect(() => {
-    if (activeCategory === 'community') {
-      setCommunityLoading(true);
-      loadCommunityQuizzes()
-        .then(quizzes => setCommunityQuizzes(quizzes))
-        .finally(() => setCommunityLoading(false));
-    }
-  }, [activeCategory]);
-
   const allQuizzes = [...quizzesData, ...customQuizzes];
 
   const filteredQuizzes = allQuizzes.filter(q => {
-    if (activeCategory === 'community') return false; // handled separately
     if (activeCategory === 'games') {
       return ['kz', 'world', 'games'].includes(q.category);
     }
     return q.category === activeCategory;
   });
 
-  const displayQuizzes = activeCategory === 'community' ? communityQuizzes : filteredQuizzes;
+  const displayQuizzes = filteredQuizzes;
 
   if (showResult) {
     const totalQuestions = 
@@ -436,12 +402,6 @@ const Quizzes = () => {
           🏭 {language === 'ru' ? 'Экономика' : 'Экономика'}
         </button>
         <button 
-          className={`quiz-category-tab ${activeCategory === 'culture' ? 'active' : ''}`}
-          onClick={() => setActiveCategory('culture')}
-        >
-          📚 {language === 'ru' ? 'Культура' : 'Мәдениет'}
-        </button>
-        <button 
           className={`quiz-category-tab ${activeCategory === 'games' ? 'active' : ''}`}
           onClick={() => setActiveCategory('games')}
         >
@@ -453,32 +413,9 @@ const Quizzes = () => {
         >
           👤 {language === 'ru' ? 'Мои тесты' : 'Менің тестерім'}
         </button>
-        <button 
-          className={`quiz-category-tab ${activeCategory === 'community' ? 'active' : ''}`}
-          onClick={() => setActiveCategory('community')}
-        >
-          🌍 {language === 'ru' ? 'Сообщество' : 'Қауымдастық'}
-        </button>
       </div>
 
       <div className="quiz-selection-grid">
-        {/* Community tab: loading spinner */}
-        {activeCategory === 'community' && communityLoading && (
-          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '1rem', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</div>
-            <p>{language === 'kz' ? 'Тестілер жүктелуде...' : 'Загрузка тестов...'}</p>
-          </div>
-        )}
-        {/* Community tab: empty state */}
-        {activeCategory === 'community' && !communityLoading && communityQuizzes.length === 0 && (
-          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: '0.4' }}>🌍</div>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'white' }}>
-              {language === 'kz' ? 'Әлі жарияланған тест жоқ' : 'Пока никто не опубликовал тест'}
-            </h3>
-            <p>{language === 'kz' ? 'Бірінші жариялаңыз!' : 'Будьте первым!'}</p>
-          </div>
-        )}
         {/* My quizzes: empty state */}
         {filteredQuizzes.length === 0 && activeCategory === 'custom' && (
           <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>

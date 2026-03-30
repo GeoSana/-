@@ -112,23 +112,10 @@ const QuizBuilder = () => {
     localStorage.setItem('custom_quizzes', JSON.stringify(updatedLocal));
     setCustomQuizzes(updatedLocal);
 
-    // 2. Publish to Firestore (visible to ALL users)
-    setPublishing(true);
-    try {
-      const authorName = JSON.parse(localStorage.getItem('qazaqgeo_user') || '{}')?.name || 'Аноним';
-      await saveCommunityQuiz(newQuiz, authorName);
-      setSuccessMsg(language === 'kz' ? '✅ Викторина барлығына жарияланды!' : '✅ Викторина опубликована для всех!');
-    } catch (e) {
-      // Firestore failed — still saved locally
-      setSuccessMsg(language === 'kz' ? '⚠️ Тек жергілікті сақталды (желі қатесі)' : '⚠️ Сохранено только локально (ошибка сети)');
-    } finally {
-      setPublishing(false);
-    }
-
     setTimeout(() => {
       setSuccessMsg('');
       navigate('/quizzes');
-    }, 2500);
+    }, 1000);
   };
 
   const handleAiImport = async () => {

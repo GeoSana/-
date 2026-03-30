@@ -63,11 +63,9 @@ const Navbar = ({ onAuthClick, isScrolled }) => {
         <div className={`nav-links ${isMenuOpen ? 'show' : ''}`}>
           <Link to="/" className={location.pathname === '/' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>{t.map}</Link>
           <Link to="/quizzes" className={location.pathname === '/quizzes' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>{t.quizzes}</Link>
-          {isLoggedIn && (
-            <Link to="/create" className={location.pathname === '/create' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>
-              {language === 'kz' ? 'Тест құру' : 'Создать тест'}
-            </Link>
-          )}
+          <Link to="/create" className={location.pathname === '/create' ? 'active' : ''} onClick={() => setIsMenuOpen(false)}>
+            {language === 'kz' ? 'Тест құру' : 'Создать тест'}
+          </Link>
 
           <div className="lang-toggle-wrapper">
             <div className="lang-toggle">
