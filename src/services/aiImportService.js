@@ -72,7 +72,7 @@ ${sourceText.substring(0, 15000)}`;
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "openrouter/free",
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.1,
         response_format: { type: "json_object" }

@@ -109,7 +109,7 @@ const AITutor = () => {
             'Authorization': `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
+            model: "openrouter/free",
             messages: [
               { role: "system", content: systemPrompt },
               { role: "user", content: `Chat History:\n${historyPart}\n\nUser Question: ${messageText}` }
