@@ -1,4 +1,4 @@
-const OPENROUTER_API_KEY = "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";
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 const CORS_PROXY = 'https://api.allorigins.win/get?url=';
 
 /**
