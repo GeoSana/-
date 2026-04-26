@@ -36,6 +36,7 @@ const suggestions = {
 };
 
 let nextId = 10;
+const OPENROUTER_API_KEY = "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";
 
 const AITutor = () => {
   const { language } = useGameState();
@@ -85,10 +86,10 @@ const AITutor = () => {
 
     // 1. Try AI first
     try {
-      // Жестко привязываем ключ, чтобы обойти кэш Vite
-      const apiKey = "AIzaSyBVbpkj9OJqSzku4fPvKbkTTPFr7KxeYFE" || import.meta.env.VITE_GEMINI_API_KEY;
+      // Жестко привязываем ключ OpenRouter
+      const apiKey = OPENROUTER_API_KEY || import.meta.env.VITE_OPENROUTER_API_KEY;
       
-      if (apiKey && apiKey.length > 20 && apiKey !== 'YOUR_GEMINI_API_KEY_HERE') {
+      if (apiKey) {
         const systemPrompt = `You are a knowledgeable AI guide specialized in Kazakhstan's geography, regions, history, and culture.
         Current language: ${language === 'kz' ? 'Kazakh' : 'Russian'}. 
         You MUST answer in ${language === 'kz' ? 'Kazakh' : 'Russian'} and provide accurate, educational information.
@@ -101,24 +102,31 @@ const AITutor = () => {
           `${m.sender === 'ai' ? 'Bot' : 'User'}: ${m.text}`
         ).join('\n');
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: `${systemPrompt}\n\nChat History:\n${historyPart}\n\nUser Question: ${messageText}` }] }]
+            model: "google/gemini-2.5-flash",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: `Chat History:\n${historyPart}\n\nUser Question: ${messageText}` }
+            ]
           })
         });
 
         if (response.ok) {
           const data = await response.json();
-          if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-            answer = "🤖 " + data.candidates[0].content.parts[0].text;
+          if (data.choices?.[0]?.message?.content) {
+            answer = "🤖 " + data.choices[0].message.content;
           } else {
-            answer = "🤖 [Google API не смог ничего ответить на ваш запрос. Лимит или блокировка]";
+            answer = "🤖 [AI не смог ничего ответить на ваш запрос. Лимит или блокировка]";
           }
         } else {
           const errorText = await response.text();
-          console.error('Gemini API Error Status:', response.status, errorText);
+          console.error('OpenRouter API Error Status:', response.status, errorText);
           answer = `🤖 [Ошибка API: HTTP ${response.status}]`;
         }
       } else {
@@ -157,8 +165,8 @@ const AITutor = () => {
           <div className="chat-header-text">
             <div className="chat-title">AI QazaqBot</div>
             <div className="status-indicator">
-              <span className={`status-dot ${import.meta.env.VITE_GEMINI_API_KEY ? 'online' : 'offline'}`}></span>
-              {import.meta.env.VITE_GEMINI_API_KEY 
+              <span className={`status-dot ${OPENROUTER_API_KEY ? 'online' : 'offline'}`}></span>
+              {OPENROUTER_API_KEY 
                 ? (language === 'kz' ? 'Жүйе желіде (AI)' : 'Система онлайн (AI)') 
                 : (language === 'kz' ? 'Білім қоры (Offline)' : 'База знаний (Offline)')}
             </div>
